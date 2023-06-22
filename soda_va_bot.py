@@ -99,7 +99,7 @@ def about_text(update, context):
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
                 [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🤖 *О боте*\n {about}",
+    query.edit_message_text(text=f"{s_path.filler}🤖 *О б1оте*\n {about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
