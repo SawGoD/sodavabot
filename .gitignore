@@ -1,5 +1,7 @@
 .idea
 __pycache__
 test.py
-resource/ShareX
+resource/ShareX/ffmpeg.exe
 data/s_connection.json
+logs/error_py.txt
+logs/error_bat.txt
