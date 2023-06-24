@@ -115,11 +115,11 @@ def multi_menu(update, context):
          InlineKeyboardButton(f"{'🟢' if s_path.read_db_cell('output_device') == 'monitor_r' else '⚫'} "
                               f"{s_path.read_db_cell('volume', 'mon_r')} 🖥",
                               callback_data='set_dev_mon_r')]]
-    if s_path.read_db_cell("pc", None, filename="s_pc.json") == 1:
+    if s_path.read_db_cell("pc", None) == 1:
         keyboard.append([InlineKeyboardButton(f"{'🟢' if s_path.read_db_cell('output_device') == 'monitor_l' else '⚫'} "
                                               f"{s_path.read_db_cell('volume', 'mon_l')} 🖥",
                                               callback_data='set_dev_mon_l')])
-    elif s_path.read_db_cell("pc", None, filename="s_pc.json") == 2:
+    elif s_path.read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton(
             f"🎸 {s_path.read_db_cell('volume', 'head_s')} "
             f"{'🟢' if s_path.read_db_cell('output_device') == 'headphones_s' else '⚫'}",
@@ -209,7 +209,7 @@ def app_menu(update, context):
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🌐 Opera", callback_data='opera')],
                 [InlineKeyboardButton("🕹️ Steam", callback_data='steam')]]
-    if s_path.read_db_cell("pc", None, filename="s_pc.json") == 2:
+    if s_path.read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton("🎨️ Stable Diffusion", callback_data='sdai')])
     keyboard += [[InlineKeyboardButton("🚀 Скрипты", callback_data='script')],
                  [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
@@ -384,7 +384,7 @@ def set_output_device(device, query):
     os.system(f'{s_path.SETDEVDEF} {device[0]}')
     os.system(f'{s_path.SETDEVDEFCOMM} {device[0]}')
     device_name = ''
-    if s_path.read_db_cell("pc", None, filename="s_pc.json") == 1:
+    if s_path.read_db_cell("pc", None) == 1:
         device_name = "headphones_h" if device == s_path.SPEAK_HEAD_H \
             else "monitor_r" if device == s_path.SPEAK_MON_R \
             else "monitor_l" if device == s_path.SPEAK_MON_L \
@@ -397,7 +397,7 @@ def set_output_device(device, query):
         current_markup.inline_keyboard[1][
             0].text = f"{'🟢' if device == s_path.SPEAK_MON_L else '⚫️'} {s_path.read_db_cell('volume', 'mon_l')} 🖥"
         query.edit_message_reply_markup(reply_markup=current_markup)
-    elif s_path.read_db_cell("pc", None, filename="s_pc.json") == 2:
+    elif s_path.read_db_cell("pc", None) == 2:
         device_name = "headphones_h" if device == s_path.SPEAK_HEAD_H \
             else "headphones_s" if device == s_path.SPEAK_HEAD_S \
             else "headphones_a" if device == s_path.SPEAK_HEAD_A \
@@ -590,15 +590,15 @@ def button(update, context):
         scr_eft_menu(update, context)
 
     elif query.data == 'sel_pc_1':
-        s_path.write_db_cell("pc", 1, None, filename="s_pc.json")
-        s_path.write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК", None, filename="s_pc.json")
+        s_path.write_db_cell("pc", 1)
+        s_path.write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
         query.answer(text='Принудительный перезапуск')
         about_text(update, context)
         python = sys.executable
         os.execv(python, [python, fr".\soda_va_bot.py"])
     elif query.data == 'sel_pc_2':
-        s_path.write_db_cell("pc", 2, None, filename="s_pc.json")
-        s_path.write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК", None, filename="s_pc.json")
+        s_path.write_db_cell("pc", 2)
+        s_path.write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
         query.answer(text='Принудительный перезапуск')
         about_text(update, context)
         python = sys.executable

@@ -2,6 +2,5 @@
 __pycache__
 test.py
 data/s_connection.json
-data/s_pc.json
 logs/error_py.txt
 logs/error_bat.txt
