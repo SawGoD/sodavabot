@@ -61,7 +61,7 @@ def user_input(s, h_type):
     write_db_cell("handle_type", h_type)
 
 
-if read_db_cell("pc") == 1:     # Рабочий ПК
+if read_db_cell("pc", None, filename="s_pc.json") == 1:     # Рабочий ПК
     # BROWSER = "C:/Users/karelikov/AppData/Local/Programs/Opera/launcher.exe"
     # STEAM = r'C:/Program Files (x86)/Steam'
     SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds Stereo)", \
@@ -70,7 +70,7 @@ if read_db_cell("pc") == 1:     # Рабочий ПК
         "{0.0.0.00000000}.{69f9cfe0-7cb7-4517-96ed-a816a26655f3}"
     SPEAK_MON_L = "BenQ EW2775ZH (Аудио Intel(R) для дисплеев)",\
         "{0.0.0.00000000}.{129de811-bfb3-4a98-96d3-0867c3ab5906}"
-elif read_db_cell("pc") == 2:   # Домашний ПК
+elif read_db_cell("pc", None, filename="s_pc.json") == 2:   # Домашний ПК
     # BROWSER = "A:/Browsers/launcher.exe"
     # STEAM = r'G:/Steam'
     SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds)", \
@@ -235,7 +235,7 @@ def ver_greet():
     print("Дата:", now_date)
     print("Время:", now_time)
     print("==================")
-    print(f'Компьютер: {read_db_cell("cur_pc")}')
+    print(f'Компьютер: {read_db_cell("cur_pc", None, filename="s_pc.json")}')
 
 
 filler = '==================================\n'
