@@ -7,19 +7,19 @@
     "pc": 2,
     "cur_pc": "👩🏻‍💻 Домашний ПК",
     "volume_status": 1,
-    "output_device": "headphones_s",
+    "output_device": "",
     "volume": {
-        "head_h": 52,
-        "head_s": 24,
-        "head_a": 30,
-        "mon_r": 73,
-        "mon_l": 72
+        "head_h": 0,
+        "head_s": 0,
+        "head_a": 0,
+        "mon_r": 0,
+        "mon_l": 0
     },
-    "app_name": "steam",
+    "app_name": "",
     "waiting_input": 0,
     "handle_type": "none",
     "vpn_status": "off",
-    "sd_link_local": "http://127.0.0.1:7860",
-    "sd_link_share": "https://60217f15b50d9cbe97.gradio.live",
-    "sdai_status": "off"
+    "sd_link_local": "",
+    "sd_link_share": "",
+    "sdai_status": ""
 }

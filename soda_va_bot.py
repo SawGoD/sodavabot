@@ -14,7 +14,6 @@ from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-
 s_path.ver_greet()
 s_path.thread_speed_test.start()
 s_scripts_list.thread_script_eft_1.start()
