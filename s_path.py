@@ -28,14 +28,14 @@ def read_db_cell(cell, subcell=None, filename='s_main_db.json'):
 
 
 def write_db_cell(cell, value, subcell=None, filename="s_main_db.json"):
-    with open(f'data/{filename}', 'r+') as f:
+    with open(f'data/{filename}', 'r+', encoding='utf-8') as f:
         data = json.load(f)
         if subcell is None:
             data[cell] = value
         else:
             data[cell][subcell] = value
         f.seek(0)
-        json.dump(data, f, indent=4)
+        json.dump(data, f, indent=4, ensure_ascii=False)
         f.truncate()
         # write_db_cell("cell", значение, "subcell", "filename")
 

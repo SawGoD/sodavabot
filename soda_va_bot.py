@@ -417,6 +417,8 @@ def set_output_device(device, query):
 
 
 def take_screenshot(key, context, update):
+    if not os.path.exists(s_path.SHAREX):
+        os.makedirs(s_path.SHAREX)
     context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_DOCUMENT)
     for file_name in os.listdir(s_path.SHAREX):
         file_path = os.path.join(s_path.SHAREX, file_name)
