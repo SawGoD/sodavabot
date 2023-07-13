@@ -7,9 +7,9 @@ import winreg
 import json
 import os
 # 2023      Март, апрель, май, июнь
-start_date = 1 + 1 + 1 + 1
+start_date = 1 + 1 + 1 + 1 + 1
 
-ver = str(f'{start_date}.18b')
+ver = str(f'{start_date}.13b')
 
 NOW = datetime.datetime.now()
 now_date = NOW.strftime("%d.%m.%y")
@@ -25,6 +25,7 @@ def create_main_db():
                 "6285956805",
                 "473352655"
             ],
+            "log_output": "-1001891369938",
             "pc": 2,
             "cur_pc": "👩🏻‍💻 Домашний ПК",
             "volume_status": 1,

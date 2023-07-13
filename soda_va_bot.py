@@ -10,6 +10,7 @@ import sys
 import plyer
 import time
 import requests
+import datetime
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
@@ -26,14 +27,16 @@ s_con_path = "s_connection.json"
 
 TOKEN = '6163227559:AAGBltGEjoq323lnwKNDozUZ9JxS0UGBuZs'
 bot = telegram.Bot(token=TOKEN)
+# bot_log = Bot(token=TOKEN)
 
 
 def start(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
+    send_logs(update, cmd="start")
     if user_id not in s_path.read_db_cell("users"):
-        context.bot.send_message(chat_id=user_id, text="У вас нет доступа")
+        context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
         print(f"@{username}/ID_{user_id} не имеет доступа|{s_path.now_time}")
     else:
         print(f"@{username}/ID_{user_id} успешно подключился|{s_path.now_time}")
@@ -54,8 +57,9 @@ def restart(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
+    send_logs(update, cmd="restart")
     if user_id not in s_path.read_db_cell("users"):
-        context.bot.send_message(chat_id=user_id, text="У вас нет доступа")
+        context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
         print(f"@{username}/ID_{user_id} не имеет доступа к перезапуску|{s_path.now_time}")
     else:
         print(f"@{username}/ID_{user_id} перезапускает бота|{s_path.now_time}")
@@ -68,6 +72,25 @@ def restart(update, context):
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         python = sys.executable
         os.execv(python, [python, fr".\soda_va_bot.py"])
+
+
+def send_logs(update, cmd=None):
+    query = update.callback_query
+    if query and query.message:
+        user_id = str(query.message.chat_id)
+        query_log = str(query.data)
+    else:
+        user_id = str(update.message.chat_id)
+        query_log = f"{cmd}"
+    now = datetime.datetime.now()
+    user = update.effective_user
+    user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
+    time_log = now.strftime('%H:%M:%S')
+    log_message = fr''' Лог:
+    • Пользователь: {user_log}
+    • Время: {time_log}
+    • Команда: `{query_log}` '''
+    bot.send_message(chat_id=s_path.read_db_cell("log_output"), text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def computer_menu(update, context):
@@ -98,7 +121,7 @@ def about_text(update, context):
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
                 [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🤖 *О б1оте*\n {about}",
+    query.edit_message_text(text=f"{s_path.filler}🤖 *О боте*\n {about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -438,7 +461,10 @@ def take_screenshot(key, context, update):
 
 def button(update, context):
     query = update.callback_query
+    # user = update.effective_user
     user_id = str(query.message.chat_id)
+
+    send_logs(update)
 
     if query.data in s_path.menu_buttons:
         eval(s_path.menu_buttons[query.data])
