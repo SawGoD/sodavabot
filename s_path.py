@@ -11,9 +11,12 @@ start_date = 1 + 1 + 1 + 1 + 1
 
 ver = str(f'{start_date}.13b')
 
-NOW = datetime.datetime.now()
-now_date = NOW.strftime("%d.%m.%y")
-now_time = NOW.strftime('%H:%M:%S')
+
+def clock():
+    now = datetime.datetime.now()
+    now_date = now.strftime("%d.%m.%y")
+    now_time = now.strftime('%H:%M:%S')
+    return now_date, now_time
 
 
 def create_main_db():
@@ -267,12 +270,13 @@ tabs_hotkeys = {
 
 
 def ver_greet():
+    daten, timen = clock()
     for i in range(1):
         print('')
     print("==================")
     print(f"Soda v{ver} started")
-    print("Дата:", now_date)
-    print("Время:", now_time)
+    print("Дата:", daten)
+    print("Время:", timen)
     print("==================")
     print(f'Компьютер: {read_db_cell("cur_pc")}')
 

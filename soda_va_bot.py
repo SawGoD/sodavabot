@@ -34,12 +34,13 @@ def start(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
+    daten, timen = s_path.clock()
     send_logs(update, cmd="start")
     if user_id not in s_path.read_db_cell("users"):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
-        print(f"@{username}/ID_{user_id} не имеет доступа|{s_path.now_time}")
+        print(f"@{username}/ID_{user_id} не имеет доступа|{timen}")
     else:
-        print(f"@{username}/ID_{user_id} успешно подключился|{s_path.now_time}")
+        print(f"@{username}/ID_{user_id} успешно подключился|{timen}")
         context.bot.send_message(chat_id=user_id, text=f"_Подключено_", parse_mode=telegram.ParseMode.MARKDOWN)
         keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                     [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
@@ -57,14 +58,15 @@ def restart(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
+    daten, timen = s_path.clock()
     send_logs(update, cmd="restart")
     if user_id not in s_path.read_db_cell("users"):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
-        print(f"@{username}/ID_{user_id} не имеет доступа к перезапуску|{s_path.now_time}")
+        print(f"@{username}/ID_{user_id} не имеет доступа к перезапуску|{timen}")
     else:
-        print(f"@{username}/ID_{user_id} перезапускает бота|{s_path.now_time}")
+        print(f"@{username}/ID_{user_id} перезапускает бота|{timen}")
         plyer.notification.notify \
-            (message=f"@{username} перезапускает бота\n{s_path.now_time}",
+            (message=f"@{username} перезапускает бота\n{timen}",
              app_icon=fr'.\resource\sample.ico',
              title='Перезапуск', )
         chat_id = update.message.chat_id
@@ -76,20 +78,34 @@ def restart(update, context):
 
 def send_logs(update, cmd=None):
     query = update.callback_query
+    daten, timen = s_path.clock()
+    username_ment = None
     if query and query.message:
         user_id = str(query.message.chat_id)
         query_log = str(query.data)
+        if query.data == 'screen':
+            username_ment = "FAKE_SGD"
+            username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
+            username_ment = f"@{username_ment}"
+            username_ment = f"• {username_ment}"
+        else:
+            username_ment = ""
     else:
         user_id = str(update.message.chat_id)
         query_log = f"{cmd}"
-    now = datetime.datetime.now()
+        username_ment = ""
     user = update.effective_user
     user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
-    time_log = now.strftime('%H:%M:%S')
-    log_message = fr''' Лог:
+    # username_log = user.username.replace('_', r'\_').replace('*', r'\*')
+    time_log = timen
+    log_message = fr'''
+{s_path.filler}Лог:
     • Пользователь: {user_log}
     • Время: {time_log}
-    • Команда: `{query_log}` '''
+    • Команда: `{query_log}`
+    {username_ment}
+
+    '''
     bot.send_message(chat_id=s_path.read_db_cell("log_output"), text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
