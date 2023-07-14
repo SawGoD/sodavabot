@@ -81,9 +81,9 @@ def send_logs(update, cmd=None):
         if query and query.message:
             user_id = str(query.message.chat_id)
             query_log = str(query.data)
-            imp_not = {'screen': True, 'scrn_full': True, 'scrn_mon': True, 'scrn_app': True,
-                       'logger': True}
-            if query.data in imp_not:
+            important_values = {'screen', 'scrn_full', 'scrn_mon', 'scrn_app', 'logger'}
+
+            if query.data in important_values:
                 username_ment = "FAKE_SGD"
                 username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
                 username_ment = f"@{username_ment}!"
@@ -97,10 +97,12 @@ def send_logs(update, cmd=None):
         user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
         time_log = timen
         log_message = fr'''
-    {s_path.filler}Лог: {username_ment}
-    • Пользователь: {user_log}
-    • Время: {time_log}
-    • Команда: `{query_log}`'''
+*Лог:* {username_ment}
+    *• Пользователь:* {user_log}
+    *• Время:* _{time_log}_
+    *• Команда:* `{query_log}`
+{s_path.filler}
+@SODA\_VA\_BOT'''
         if user_id == "334969852":
             pass
         else:
