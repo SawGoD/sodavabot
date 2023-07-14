@@ -1,0 +1,9 @@
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\karelikov\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\utils\promise.py", line 96, in run
+    self._result = self.pooled_function(*self.args, **self.kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Soda_VA_BOT\soda_va_bot.py", line 653, in handle_text
+    message_text = update.message.text
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'text'

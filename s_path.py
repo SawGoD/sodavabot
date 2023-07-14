@@ -6,7 +6,7 @@ import subprocess
 import winreg
 import json
 import os
-# 2023      Март, апрель, май, июнь
+# 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
 
 ver = str(f'{start_date}.13b')
@@ -104,8 +104,6 @@ def user_input(s, h_type):
 
 
 if read_db_cell("pc") == 1:     # Рабочий ПК
-    # BROWSER = "C:/Users/karelikov/AppData/Local/Programs/Opera/launcher.exe"
-    # STEAM = r'C:/Program Files (x86)/Steam'
     SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds Stereo)", \
         "{0.0.0.00000000}.{03e928b3-a42f-4a88-b7e5-f3c66adb1f11}"
     SPEAK_MON_R = "Динамики (2- High Definition Audio Device)",\
@@ -113,8 +111,6 @@ if read_db_cell("pc") == 1:     # Рабочий ПК
     SPEAK_MON_L = "BenQ EW2775ZH (Аудио Intel(R) для дисплеев)",\
         "{0.0.0.00000000}.{129de811-bfb3-4a98-96d3-0867c3ab5906}"
 elif read_db_cell("pc") == 2:   # Домашний ПК
-    # BROWSER = "A:/Browsers/launcher.exe"
-    # STEAM = r'G:/Steam'
     SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds)", \
         "{0.0.0.00000000}.{5f0d3099-ef36-4600-af3a-ea4f1886dedd}"
     SPEAK_HEAD_S = "Headset (2- SB Tactic3D Rage Wireless)",\
@@ -260,8 +256,8 @@ vpn_paths = {
 }
 
 tabs_hotkeys = {
-    'tab_pull': ('ctrl', 'pgup'),
-    'tab_force': ('ctrl', 'pgdn'),
+    'tab_left': ('ctrl', 'pgup'),
+    'tab_right': ('ctrl', 'pgdn'),
     'tab_prev': ('alt', 'left'),
     'tab_next': ('alt', 'right'),
     'tab_off': ('ctrl', 'w'),
@@ -278,7 +274,7 @@ def ver_greet():
     print("Дата:", daten)
     print("Время:", timen)
     print("==================")
-    print(f'Компьютер: {read_db_cell("cur_pc")}')
+    print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
 
 
 filler = '==================================\n'
@@ -305,28 +301,11 @@ def get_volume():
     write_db_cell("volume", vol, keys[1])
 
 
-# def get_volume():
-#     if read_db_cell("pc", None) == 1:
-#         commands = [(SPEAK_HEAD_H[1], "head_h"), (SPEAK_MON_R[1], "mon_r"),
-#                     (SPEAK_MON_L[1], "mon_l")]
-#     elif read_db_cell("pc", None) == 2:
-#         commands = [(SPEAK_HEAD_H[1], "head_h"), (SPEAK_HEAD_S[1], "head_s"),
-#                     (SPEAK_HEAD_A[1], "head_a"), (SPEAK_MON_R[1], "mon_r")]
-#     else:
-#         return
-#
-#     for cmd, key in commands:
-#         try:
-#             vol = int(round(float(subprocess.check_output(f"{SVCL} {cmd}".split()).decode('utf-8').strip())))
-#         except ValueError:
-#             vol = 0
-#         write_db_cell("volume", vol, key)
-
-
 def speed_test():
     print("Модуль измерения скорости запущен.")
     while True:
-        p = subprocess.Popen(fr'"{DEFPATH}\resource\speedtest.exe" --format=json', stdout=subprocess.PIPE, shell=True, text=True)
+        p = subprocess.Popen(fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
+                             stdout=subprocess.PIPE, shell=True, text=True)
         # Ждем 30 секунд до окончания проверки
         time.sleep(30)
         # Получаем результат выполнения команды

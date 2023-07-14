@@ -10,7 +10,6 @@ import sys
 import plyer
 import time
 import requests
-import datetime
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
@@ -27,7 +26,6 @@ s_con_path = "s_connection.json"
 
 TOKEN = '6163227559:AAGBltGEjoq323lnwKNDozUZ9JxS0UGBuZs'
 bot = telegram.Bot(token=TOKEN)
-# bot_log = Bot(token=TOKEN)
 
 
 def start(update, context):
@@ -65,10 +63,9 @@ def restart(update, context):
         print(f"@{username}/ID_{user_id} не имеет доступа к перезапуску|{timen}")
     else:
         print(f"@{username}/ID_{user_id} перезапускает бота|{timen}")
-        plyer.notification.notify \
-            (message=f"@{username} перезапускает бота\n{timen}",
-             app_icon=fr'.\resource\sample.ico',
-             title='Перезапуск', )
+        plyer.notification.notify(message=f"@{username} перезапускает бота\n{timen}",
+                                  app_icon=fr'.\resource\sample.ico',
+                                  title='Перезапуск', )
         chat_id = update.message.chat_id
         message_id = update.message.message_id
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -96,7 +93,6 @@ def send_logs(update, cmd=None):
         username_ment = ""
     user = update.effective_user
     user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
-    # username_log = user.username.replace('_', r'\_').replace('*', r'\*')
     time_log = timen
     log_message = fr'''
 {s_path.filler}Лог:
@@ -104,9 +100,9 @@ def send_logs(update, cmd=None):
     • Время: {time_log}
     • Команда: `{query_log}`
     {username_ment}
-
     '''
-    bot.send_message(chat_id=s_path.read_db_cell("log_output"), text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
+    bot.send_message(chat_id=s_path.read_db_cell("log_output"),
+                     text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def computer_menu(update, context):
@@ -159,7 +155,7 @@ def multi_menu(update, context):
                                               callback_data='set_dev_mon_l')])
     elif s_path.read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton(
-            f"🎸 {s_path.read_db_cell('volume', 'head_s')} "
+            f"🎸 [x] {s_path.read_db_cell('volume', 'head_s')} "
             f"{'🟢' if s_path.read_db_cell('output_device') == 'headphones_s' else '⚫'}",
             callback_data='set_dev_head_s'),
             InlineKeyboardButton(
@@ -216,7 +212,6 @@ def screen_menu(update, context):
         [InlineKeyboardButton("◼️", callback_data='scrn_full'),
          InlineKeyboardButton("◾️", callback_data='scrn_mon'),
          InlineKeyboardButton("▪️", callback_data='scrn_app')],
-        # [InlineKeyboardButton("➖ Удалить", callback_data='scrn_del')],
 
         [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
          InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
@@ -229,7 +224,6 @@ def screen_menu(update, context):
 def clipboard_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    # clipboard_content = pyperclip.paste()
     keyboard = [
         [InlineKeyboardButton("📤 Отправить", callback_data='get_paste'),
          InlineKeyboardButton("Получить 📥", callback_data='get_copy')],
@@ -282,8 +276,8 @@ def tabs_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🔗 Отправить", callback_data='tab_send')],
-                [InlineKeyboardButton("◀️", callback_data='tab_pull'),
-                 InlineKeyboardButton("▶️", callback_data='tab_force')],
+                [InlineKeyboardButton("◀️", callback_data='tab_left'),
+                 InlineKeyboardButton("▶️", callback_data='tab_right')],
                 # [InlineKeyboardButton("↩️", callback_data='tab_prev'),
                 #  InlineKeyboardButton("↪️", callback_data='tab_next')],
 
@@ -353,7 +347,8 @@ def scr_eft_menu(update, context):
                         InlineKeyboardButton("5", callback_data='eft_1_5'),
                         InlineKeyboardButton("➕", callback_data='eft_1_up')])
     keyboard += [
-        [InlineKeyboardButton(f"2️⃣ Simple Clicker {'🟢' if s_path.read_db_cell('script_eft_2', None, sdb_path) == 1 else '⚫'}",
+        [InlineKeyboardButton(f"2️⃣ Simple Clicker "
+                              f"{'🟢' if s_path.read_db_cell('script_eft_2', None, sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_2')],
         [InlineKeyboardButton(f"3️⃣ [x] {'🟢' if s_path.read_db_cell('script_eft_3', None, sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_3')],
@@ -490,7 +485,6 @@ def button(update, context):
         os.system(s_path.apps_os_act[query.data])
     elif query.data in s_path.tabs_hotkeys:
         pyautogui.hotkey(*s_path.tabs_hotkeys[query.data])
-        pass
     elif query.data in s_path.scr_keys:
         option = s_path.scr_keys[query.data]
         take_screenshot(option, context, update)
@@ -520,28 +514,23 @@ def button(update, context):
         for _ in range(5):
             pyautogui.press("volumedown")
         multi_menu(update, context)
-        pass
     elif query.data == 'vol_50':
         query.answer(text='Громкость: 50%')
         os.system(fr'"{s_path.SETVOL}" 50')
         multi_menu(update, context)
-        pass
     elif query.data == 'vol_up10':
         query.answer(text='Громкость увеличена на 10')
         for _ in range(5):
             pyautogui.press("volumeup")
         multi_menu(update, context)
-        pass
     elif query.data == 'vol_up':
         query.answer(text='Громкость увеличена на 2')
         pyautogui.press("volumeup")
         multi_menu(update, context)
-        pass
     elif query.data == 'vol_down':
         query.answer(text='Громкость уменьшена на 2')
         pyautogui.press("volumedown")
         multi_menu(update, context)
-        pass
     elif query.data == 'vol_on_off':
         new_status = 0 if s_path.read_db_cell("volume_status") == 1 else 1
         s_path.write_db_cell("volume_status", new_status)
@@ -554,8 +543,6 @@ def button(update, context):
             current_markup.inline_keyboard[4][2].text = f"🔊"
             pyautogui.press("volumemute")
         query.edit_message_reply_markup(reply_markup=current_markup)
-        pass
-
     elif query.data.startswith(('scrn_del:', 'text_del:')):
         if query.data.startswith('scrn_del:'):
             file_name = query.data.split(':')[1]  # получаем название файла скриншота из callback_data
@@ -585,7 +572,6 @@ def button(update, context):
     elif query.data == 'con_speed':
         query.answer(text='Автообновление каждые 30 секунд')
         vpn_menu(update, context)
-        pass
     elif query.data == 'vpn_off':
         query.answer(text='Отключение через 3 секунды')
         os.system(f'{s_path.VPN_OFF}')
@@ -660,11 +646,11 @@ def button(update, context):
 
 
 def handle_text(update, context):
+    message_text = update.message.text
+    chat_id = update.message.chat_id
+    message_id = update.message.message_id
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
     if s_path.read_db_cell("waiting_input") == 1:
-        message_text = update.message.text
-        chat_id = update.message.chat_id
-        message_id = update.message.message_id
-        context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         if s_path.read_db_cell("handle_type") == 'links':
             urls = re.findall('(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+', message_text)
             message_text = urls[0]
@@ -694,14 +680,14 @@ def handle_text(update, context):
                 print(f"AppID игры {game_name}: {appid}")
                 # install_dir = fr'"{s_path.STEAM}\steamapps\common\"'
                 install_dir = r'C:\Own\test'
-                cmd = f'"{s_path.STEAMCMD}" +force_install_dir {install_dir} +login flay_exe {str(st_password)} {str(code_2fa)} +app_update {str(appid)} validate +quit'
+                cmd = f'"{s_path.STEAMCMD}" +force_install_dir {install_dir}' \
+                      f' +login flay_exe {str(st_password)} {str(code_2fa)} +app_update {str(appid)} validate +quit'
                 # lets_install = subprocess.Popen(cmd, stdout=subprocess.PIPE)
                 os.system(cmd)
             else:
                 print(f"Игра {game_name} не найдена")
     else:
-        # обрабатываем сообщение как обычно
-        pass
+        pyperclip.copy(message_text)
 
 
 def main():

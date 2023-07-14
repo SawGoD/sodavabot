@@ -16,11 +16,11 @@ def buyer():
         value = f'{s_path.read_db_cell("seft_1_set", filename=sdb_path)["value"]}'
         if s_path.read_db_cell("script_eft_1", filename=sdb_path) == 1:
             if keyboard.is_pressed('space'):
-                # pyautogui.click(button='left')
-                # pyautogui.moveTo(x_pos, y_pos)
-                # time.sleep(0.1)
+                pyautogui.click(button='left')
+                pyautogui.moveTo(x_pos, y_pos)
+                time.sleep(0.05)
                 pyautogui.write(value)
-                # pyautogui.click(button='left')
+                pyautogui.click(button='left')
         else:
             # print("Script disabled")
             time.sleep(1)
