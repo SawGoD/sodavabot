@@ -665,9 +665,9 @@ def handle_text(update, context):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
     if s_path.read_db_cell("waiting_input") == 1:
         if s_path.read_db_cell("handle_type") == 'links':
-            urls = re.findall('(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+', message_text)
+            urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
             message_text = urls[0]
-            os.system(f'{s_path.BROWSER} {message_text}')
+            os.system(f'{s_path.BROWSER} "{message_text}"')
         elif s_path.read_db_cell("handle_type") == 'clipboard':
             pyperclip.copy(message_text)
         elif s_path.read_db_cell("handle_type") == 'game':

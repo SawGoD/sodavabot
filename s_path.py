@@ -9,7 +9,7 @@ import os
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
 
-ver = str(f'{start_date}.13b')
+ver = str(f'{start_date}.14b')
 
 
 def clock():
