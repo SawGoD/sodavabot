@@ -29,6 +29,7 @@ def create_main_db():
                 "473352655"
             ],
             "log_output": "-1001891369938",
+            "log_status": 1,
             "pc": 2,
             "cur_pc": "👩🏻‍💻 Домашний ПК",
             "volume_status": 1,

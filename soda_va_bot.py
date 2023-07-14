@@ -74,35 +74,40 @@ def restart(update, context):
 
 
 def send_logs(update, cmd=None):
-    query = update.callback_query
-    daten, timen = s_path.clock()
-    username_ment = None
-    if query and query.message:
-        user_id = str(query.message.chat_id)
-        query_log = str(query.data)
-        if query.data == 'screen':
-            username_ment = "FAKE_SGD"
-            username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
-            username_ment = f"@{username_ment}"
-            username_ment = f"• {username_ment}"
+    if s_path.read_db_cell("log_status") == 1:
+        query = update.callback_query
+        daten, timen = s_path.clock()
+        username_ment = None
+        if query and query.message:
+            user_id = str(query.message.chat_id)
+            query_log = str(query.data)
+            imp_not = {'screen': True, 'scrn_full': True, 'scrn_mon': True, 'scrn_app': True,
+                       'logger': True}
+            if query.data in imp_not:
+                username_ment = "FAKE_SGD"
+                username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
+                username_ment = f"@{username_ment}!"
+            else:
+                username_ment = ""
         else:
+            user_id = str(update.message.chat_id)
+            query_log = f"{cmd}"
             username_ment = ""
-    else:
-        user_id = str(update.message.chat_id)
-        query_log = f"{cmd}"
-        username_ment = ""
-    user = update.effective_user
-    user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
-    time_log = timen
-    log_message = fr'''
-{s_path.filler}Лог:
+        user = update.effective_user
+        user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
+        time_log = timen
+        log_message = fr'''
+    {s_path.filler}Лог: {username_ment}
     • Пользователь: {user_log}
     • Время: {time_log}
-    • Команда: `{query_log}`
-    {username_ment}
-    '''
-    bot.send_message(chat_id=s_path.read_db_cell("log_output"),
-                     text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
+    • Команда: `{query_log}`'''
+        if user_id == "334969852":
+            pass
+        else:
+            bot.send_message(chat_id=s_path.read_db_cell("log_output"),
+                             text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
+    else:
+        pass
 
 
 def computer_menu(update, context):
@@ -114,7 +119,7 @@ def computer_menu(update, context):
                 [InlineKeyboardButton("📷 Экран", callback_data='screen'),
                  InlineKeyboardButton("📋 Буфер обмена", callback_data='clipboard')],
                 [InlineKeyboardButton("⚠ Питание", callback_data='pc')],
-                [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🖥 *Компьютер*",
                             reply_markup=reply_markup,
@@ -131,7 +136,9 @@ def about_text(update, context):
 Выберите ПК:'''
     keyboard = [[InlineKeyboardButton("👨🏻‍💻 Work", callback_data='sel_pc_1'),
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
-                [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                [InlineKeyboardButton(f"📝 Логирование {'🟢' if s_path.read_db_cell('log_status') == 1 else '⚫'}",
+                                      callback_data='logger')],
+                [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🤖 *О боте*\n {about}",
                             reply_markup=reply_markup,
@@ -198,7 +205,7 @@ def pc_menu(update, context):
                 [InlineKeyboardButton("🙈", callback_data='mon_off')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}⚠ *Питание*",
                             reply_markup=reply_markup,
@@ -214,7 +221,7 @@ def screen_menu(update, context):
          InlineKeyboardButton("▪️", callback_data='scrn_app')],
 
         [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📷 *Экран*",
                             reply_markup=reply_markup,
@@ -228,7 +235,7 @@ def clipboard_menu(update, context):
         [InlineKeyboardButton("📤 Отправить", callback_data='get_paste'),
          InlineKeyboardButton("Получить 📥", callback_data='get_copy')],
         [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📋 *Буфер обмена*",
                             reply_markup=reply_markup,
@@ -244,7 +251,7 @@ def app_menu(update, context):
     if s_path.read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton("🎨️ Stable Diffusion", callback_data='sdai')])
     keyboard += [[InlineKeyboardButton("🚀 Скрипты", callback_data='script')],
-                 [InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📟 *Приложения*",
                             reply_markup=reply_markup,
@@ -265,7 +272,7 @@ def app_ui(update, context):
                  InlineKeyboardButton(f"{app_sub_text}", callback_data=f'{app_sub}')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='apps'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}{app_ui_name}",
                             reply_markup=reply_markup,
@@ -287,7 +294,7 @@ def tabs_menu(update, context):
                  InlineKeyboardButton("🔖 Вернуть", callback_data='tab_return')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='opera'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📑 *Вкладки*",
                             reply_markup=reply_markup,
@@ -301,7 +308,7 @@ def games_menu(update, context):
                 [InlineKeyboardButton("🚫 Отмена", callback_data='game_canc')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='steam'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📑 *Игры*",
                             reply_markup=reply_markup,
@@ -315,7 +322,7 @@ def sdai_links_menu(update, context):
                 [InlineKeyboardButton("🔗 Share", url=f'{s_path.read_db_cell("sd_link_share", None)}')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='sdai'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🔗 *Ссылки*",
                             reply_markup=reply_markup,
@@ -328,7 +335,7 @@ def scripts_menu(update, context):
     keyboard = [[InlineKeyboardButton("🤕 Escape From Tarkov", callback_data='scr_eft')],
                 # [InlineKeyboardButton("0️⃣ Holder [x]", callback_data='scr_idk')],
                 [InlineKeyboardButton("🔙 Назад", callback_data='apps'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🚀 *Скрипты*",
                             reply_markup=reply_markup,
@@ -354,7 +361,7 @@ def scr_eft_menu(update, context):
                               callback_data='scr_eft_3')],
         [InlineKeyboardButton("⭕ Выключить всё", callback_data='scr_eft_off')],
         [InlineKeyboardButton("🔙 Назад", callback_data='script'),
-         InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🤕 *Escape From Tarkov*",
                             reply_markup=reply_markup,
@@ -406,7 +413,7 @@ def vpn_menu(update, context):
                  InlineKeyboardButton("⭕ Выключить ", callback_data='vpn_off')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                 InlineKeyboardButton("🔝 Menu", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🔒 *VPN* \n{about}",
                             reply_markup=reply_markup,
@@ -632,6 +639,10 @@ def button(update, context):
         about_text(update, context)
         python = sys.executable
         os.execv(python, [python, fr".\soda_va_bot.py"])
+    elif query.data == 'logger':
+        status = 0 if s_path.read_db_cell("log_status") == 1 else 1
+        s_path.write_db_cell(f"log_status", status)
+        about_text(update, context)
 
     elif query.data == 'mmenu':
         s_path.user_input(0, "none")
