@@ -8,6 +8,7 @@ echo pip install pyautogui >> packages.ps1
 echo pip install subprocess >> packages.ps1
 echo pip install plyer >> packages.ps1
 echo pip install pyperclip >> packages.ps1
+echo pip install python-dotenv >> packages.ps1
 
 powershell.exe -ExecutionPolicy Bypass -File ".\packages.ps1"
 del packages.ps1

@@ -1,7 +1,6 @@
 import os
 import re
 import s_path
-import s_scripts_list
 import telegram
 import pyautogui
 import subprocess
@@ -10,21 +9,22 @@ import sys
 import plyer
 import time
 import requests
+from dotenv import load_dotenv
+from s_scripts_list import sdb_path, thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
 s_path.ver_greet()
 s_path.thread_speed_test.start()
-s_scripts_list.thread_script_eft_1.start()
-s_scripts_list.thread_script_eft_2.start()
-s_scripts_list.thread_script_eft_3.start()
+thread_script_eft_1.start()
+thread_script_eft_2.start()
+thread_script_eft_3.start()
 
 user_data = {}
-sdb_path = s_scripts_list.sdb_path
 s_con_path = "s_connection.json"
-
-TOKEN = '6163227559:AAGBltGEjoq323lnwKNDozUZ9JxS0UGBuZs'
+load_dotenv()
+TOKEN = os.getenv('BOT_TOKEN')
 bot = telegram.Bot(token=TOKEN)
 
 
@@ -683,18 +683,15 @@ def handle_text(update, context):
                             return app["appid"]
                 return None
 
-            # st_password = message_text[:12]
-            st_password = s_path.true_try
-            # game_name = message_text[13:-6]
             game_name = message_text[:-6]
             code_2fa = message_text[-5:]
             appid = get_appid(game_name)
             if appid:
                 print(f"AppID игры {game_name}: {appid}")
-                # install_dir = fr'"{s_path.STEAM}\steamapps\common\"'
-                install_dir = r'C:\Own\test'
+                install_dir = fr'{s_path.STEAM}/steamapps/common/'
                 cmd = f'"{s_path.STEAMCMD}" +force_install_dir {install_dir}' \
-                      f' +login flay_exe {str(st_password)} {str(code_2fa)} +app_update {str(appid)} validate +quit'
+                      f' +login {str(os.getenv("STEAM_LOGIN"))} {str(os.getenv("STEAM_PASS"))} {str(code_2fa)} ' \
+                      f'+app_update {str(appid)} validate +quit'
                 # lets_install = subprocess.Popen(cmd, stdout=subprocess.PIPE)
                 os.system(cmd)
             else:

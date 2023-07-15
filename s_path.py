@@ -2,6 +2,7 @@ import time
 import datetime
 import threading
 import subprocess
+import s_file_gen
 # import concurrent.futures
 import winreg
 import json
@@ -19,43 +20,8 @@ def clock():
     return now_date, now_time
 
 
-def create_main_db():
-    filepath = ".\\data\\s_main_db.json"
-    if not os.path.exists(filepath):
-        data = {
-            "users": [
-                "334969852",
-                "6285956805",
-                "473352655"
-            ],
-            "log_output": "-1001891369938",
-            "log_status": 1,
-            "pc": 2,
-            "cur_pc": "👩🏻‍💻 Домашний ПК",
-            "volume_status": 1,
-            "output_device": "",
-            "volume": {
-                "head_h": 0,
-                "head_s": 0,
-                "head_a": 0,
-                "mon_r": 0,
-                "mon_l": 0
-            },
-            "app_name": "",
-            "waiting_input": 0,
-            "handle_type": "none",
-            "vpn_status": "off",
-            "sd_link_local": "",
-            "sd_link_share": "",
-            "sdai_status": ""
-        }
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-            # f.seek(0)
-            # f.truncate()
-
-
-create_main_db()
+s_file_gen.create_main_db()
+s_file_gen.crete_env()
 time.sleep(0.15)
 
 
@@ -120,13 +86,6 @@ elif read_db_cell("pc") == 2:   # Домашний ПК
         "{0.0.0.00000000}.{32aae43c-1c38-4d36-823a-785fdea69a6c}"
     SPEAK_MON_R = "DELL S2316H (NVIDIA High Definition Audio)",\
         "{0.0.0.00000000}.{1a6e09ed-9668-41da-b347-a5ce8fb88003}"
-
-
-fizz = "o_r"
-glee = "4"
-jolt = "hal"
-yank = "0z"
-hush = "_me"
 
 DEFPATH = r'C:\Soda_VA_BOT'
 
@@ -317,4 +276,3 @@ def speed_test():
 
 
 thread_speed_test = threading.Thread(target=speed_test)
-true_try = jolt+fizz+yank+glee+hush

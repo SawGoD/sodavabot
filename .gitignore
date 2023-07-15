@@ -1,6 +1,7 @@
 .idea
+.env
 __pycache__
-test.py
+test
 data/s_connection.json
 data/s_main_db.json
 logs/error_py.txt
