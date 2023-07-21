@@ -7,10 +7,11 @@ import s_file_gen
 import winreg
 import json
 import os
+from s_handle_db import read_db_cell, write_db_cell, clear_db
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
 
-ver = str(f'{start_date}.14b')
+ver = str(f'{start_date}.21b')
 
 
 def clock():
@@ -23,36 +24,6 @@ def clock():
 s_file_gen.create_main_db()
 s_file_gen.crete_env()
 time.sleep(0.15)
-
-
-def read_db_cell(cell, subcell=None, filename='s_main_db.json'):
-    filepath = os.path.join('.', 'data', filename)
-    with open(filepath, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        if subcell is None:
-            return data[cell]
-        else:
-            return data[cell][subcell]
-        # read_db_cell("cell", "subcell"/None, "filename")
-
-
-def write_db_cell(cell, value, subcell=None, filename="s_main_db.json"):
-    with open(f'data/{filename}', 'r+', encoding='utf-8') as f:
-        data = json.load(f)
-        if subcell is None:
-            data[cell] = value
-        else:
-            data[cell][subcell] = value
-        f.seek(0)
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.truncate()
-        # write_db_cell("cell", значение, "subcell", "filename")
-
-
-def clear_db(filename='s_main_db.json'):
-    filepath = os.path.join('.', 'data', filename)
-    with open(filepath, 'w') as f:
-        json.dump({}, f)
 
 
 def get_path(path, file):
@@ -83,7 +54,7 @@ elif read_db_cell("pc") == 2:   # Домашний ПК
     SPEAK_HEAD_S = "Headset (2- SB Tactic3D Rage Wireless)",\
         "{0.0.0.00000000}.{93389548-8b7a-48a2-bd56-7c3ac4101744}"
     SPEAK_HEAD_A = "Bloody G575 (3- USB Audio Device)", \
-        "{0.0.0.00000000}.{32aae43c-1c38-4d36-823a-785fdea69a6c}"
+        "{0.0.0.00000000}.{838b3556-45e2-4242-a1f9-428fa1b06433}"
     SPEAK_MON_R = "DELL S2316H (NVIDIA High Definition Audio)",\
         "{0.0.0.00000000}.{1a6e09ed-9668-41da-b347-a5ce8fb88003}"
 
@@ -241,15 +212,15 @@ filler = '==================================\n'
 
 
 def get_volume():
-    if read_db_cell("output_device", None) == "headphones_h":
+    if read_db_cell("output_device",) == "headphones_h":
         keys = [SPEAK_HEAD_H[1], "head_h"]
-    elif read_db_cell("output_device", None) == "headphones_s":
+    elif read_db_cell("output_device") == "headphones_s":
         keys = [SPEAK_HEAD_S[1], "head_s"]
-    elif read_db_cell("output_device", None) == "headphones_a":
+    elif read_db_cell("output_device") == "headphones_a":
         keys = [SPEAK_HEAD_A[1], "head_a"]
-    elif read_db_cell("output_device", None) == "monitor_r":
+    elif read_db_cell("output_device") == "monitor_r":
         keys = [SPEAK_MON_R[1], "mon_r"]
-    elif read_db_cell("output_device", None) == "monitor_l":
+    elif read_db_cell("output_device") == "monitor_l":
         keys = [SPEAK_MON_L[1], "mon_l"]
     else:
         return

@@ -6,12 +6,6 @@ def create_main_db():
     filepath = ".\\data\\s_main_db.json"
     if not os.path.exists(filepath):
         data = {
-            "users": [
-                "334969852",
-                "6285956805",
-                "473352655"
-            ],
-            "log_output": "-1001891369938",
             "log_status": 1,
             "pc": 2,
             "cur_pc": "👩🏻‍💻 Домашний ПК",
@@ -42,6 +36,12 @@ def crete_env():
     filepath = '.env'
     if not os.path.exists(filepath):
         data = "BOT_TOKEN=repalce\n" \
+               "ALLOWED_USERS={'replace', 'replace', '334969852'}\n" \
+               "LOG_IGNORED_USERS={'replace', 'replace', '334969852'}\n" \
+               "LOG_OUTPUT=replace\n" \
+               "LOG_ALERT={'screen', 'scrn_full', 'scrn_mon', 'scrn_app', 'logger'}\n" \
+               "STEAM_LOGIN=replace\n" \
+               "STEAM_PASS=replace\n"\
                "API_TOKEN=replace\n"
         with open('.env', 'w') as file:
             file.write(data)

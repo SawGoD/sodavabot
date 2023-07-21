@@ -5,12 +5,15 @@ import telegram
 import pyautogui
 import subprocess
 import pyperclip
+import datetime
 import sys
 import plyer
 import time
 import requests
+import s_send_logs
 from dotenv import load_dotenv
 from s_scripts_list import sdb_path, thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
+from s_handle_db import read_db_cell, write_db_cell, clear_db
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
@@ -28,17 +31,25 @@ TOKEN = os.getenv('BOT_TOKEN')
 bot = telegram.Bot(token=TOKEN)
 
 
+def clock():
+    now = datetime.datetime.now()
+    now_date = now.strftime("%d.%m.%y")
+    now_time = now.strftime('%H:%M:%S')
+    return now_date, now_time
+
+
 def start(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
-    daten, timen = s_path.clock()
-    send_logs(update, cmd="start")
-    if user_id not in s_path.read_db_cell("users"):
+    daten, timen = clock()
+    if user_id not in os.getenv('ALLOWED_USERS'):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
-        print(f"@{username}/ID_{user_id} не имеет доступа|{timen}")
+        s_send_logs.log_form_cmd(update, context, effect=False, cmd="start")
+        s_send_logs.log_form_tg(update, context, effect=False, cmd="start")
     else:
-        print(f"@{username}/ID_{user_id} успешно подключился|{timen}")
+        s_send_logs.log_form_cmd(update, context, effect=True, cmd="start")
+        s_send_logs.log_form_tg(update, context, effect=True, cmd="start")
         context.bot.send_message(chat_id=user_id, text=f"_Подключено_", parse_mode=telegram.ParseMode.MARKDOWN)
         keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                     [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
@@ -56,13 +67,15 @@ def restart(update, context):
     user_id = str(update.message.chat_id)
     user = update.effective_user
     username = user.username
-    daten, timen = s_path.clock()
-    send_logs(update, cmd="restart")
-    if user_id not in s_path.read_db_cell("users"):
+    daten, timen = clock()
+    s_send_logs.log_form_tg(update, context, cmd="restart")
+    if user_id not in os.getenv('ALLOWED_USERS'):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
-        print(f"@{username}/ID_{user_id} не имеет доступа к перезапуску|{timen}")
+        s_send_logs.log_form_cmd(update, context, effect=False, cmd="restart")
+        s_send_logs.log_form_tg(update, context, effect=False, cmd="restart")
     else:
-        print(f"@{username}/ID_{user_id} перезапускает бота|{timen}")
+        s_send_logs.log_form_cmd(update, context, effect=True, cmd="restart")
+        s_send_logs.log_form_tg(update, context, effect=True, cmd="restart")
         plyer.notification.notify(message=f"@{username} перезапускает бота\n{timen}",
                                   app_icon=fr'.\resource\sample.ico',
                                   title='Перезапуск', )
@@ -71,45 +84,6 @@ def restart(update, context):
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         python = sys.executable
         os.execv(python, [python, fr".\soda_va_bot.py"])
-
-
-def send_logs(update, cmd=None):
-    if s_path.read_db_cell("log_status") == 1:
-        query = update.callback_query
-        daten, timen = s_path.clock()
-        username_ment = None
-        if query and query.message:
-            user_id = str(query.message.chat_id)
-            query_log = str(query.data)
-            important_values = {'screen', 'scrn_full', 'scrn_mon', 'scrn_app', 'logger'}
-
-            if query.data in important_values:
-                username_ment = "FAKE_SGD"
-                username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
-                username_ment = f"@{username_ment}!"
-            else:
-                username_ment = ""
-        else:
-            user_id = str(update.message.chat_id)
-            query_log = f"{cmd}"
-            username_ment = ""
-        user = update.effective_user
-        user_log = f"[{user.username}](tg://openmessage?user_id={user_id})"
-        time_log = timen
-        log_message = fr'''
-*Лог:* {username_ment}
-    *• Пользователь:* {user_log}
-    *• Время:* _{time_log}_
-    *• Команда:* `{query_log}`
-{s_path.filler}
-@SODA\_VA\_BOT'''
-        if user_id == "334969852":
-            pass
-        else:
-            bot.send_message(chat_id=s_path.read_db_cell("log_output"),
-                             text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
-    else:
-        pass
 
 
 def computer_menu(update, context):
@@ -133,12 +107,12 @@ def about_text(update, context):
     user_id = str(query.message.chat_id)
     about = f'''"SODA VA BOT"
         *Версия бота:* _{s_path.ver}_
-        *Сейчас выбран:* _{s_path.read_db_cell("cur_pc")}_
+        *Сейчас выбран:* _{read_db_cell("cur_pc")}_
 
 Выберите ПК:'''
     keyboard = [[InlineKeyboardButton("👨🏻‍💻 Work", callback_data='sel_pc_1'),
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
-                [InlineKeyboardButton(f"📝 Логирование {'🟢' if s_path.read_db_cell('log_status') == 1 else '⚫'}",
+                [InlineKeyboardButton(f"📝 Логирование {'🟢' if read_db_cell('log_status') == 1 else '⚫'}",
                                       callback_data='logger')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -152,24 +126,24 @@ def multi_menu(update, context):
     user_id = str(query.message.chat_id)
     s_path.get_volume()
     keyboard = [
-        [InlineKeyboardButton(f"🌀 {s_path.read_db_cell('volume', 'head_h')} "
-                              f"{'🟢' if s_path.read_db_cell('output_device') == 'headphones_h' else '⚫'}",
+        [InlineKeyboardButton(f"🌀 {read_db_cell('volume', 'head_h')} "
+                              f"{'🟢' if read_db_cell('output_device') == 'headphones_h' else '⚫'}",
                               callback_data='set_dev_head_h'),
-         InlineKeyboardButton(f"{'🟢' if s_path.read_db_cell('output_device') == 'monitor_r' else '⚫'} "
-                              f"{s_path.read_db_cell('volume', 'mon_r')} 🖥",
+         InlineKeyboardButton(f"{'🟢' if read_db_cell('output_device') == 'monitor_r' else '⚫'} "
+                              f"{read_db_cell('volume', 'mon_r')} 🖥",
                               callback_data='set_dev_mon_r')]]
-    if s_path.read_db_cell("pc", None) == 1:
-        keyboard.append([InlineKeyboardButton(f"{'🟢' if s_path.read_db_cell('output_device') == 'monitor_l' else '⚫'} "
-                                              f"{s_path.read_db_cell('volume', 'mon_l')} 🖥",
+    if read_db_cell("pc", None) == 1:
+        keyboard.append([InlineKeyboardButton(f"{'🟢' if read_db_cell('output_device') == 'monitor_l' else '⚫'} "
+                                              f"{read_db_cell('volume', 'mon_l')} 🖥",
                                               callback_data='set_dev_mon_l')])
-    elif s_path.read_db_cell("pc", None) == 2:
+    elif read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton(
-            f"🎸 [x] {s_path.read_db_cell('volume', 'head_s')} "
-            f"{'🟢' if s_path.read_db_cell('output_device') == 'headphones_s' else '⚫'}",
+            f"🎸 {read_db_cell('volume', 'head_s')} "
+            f"{'🟢' if read_db_cell('output_device') == 'headphones_s' else '⚫'}",
             callback_data='set_dev_head_s'),
             InlineKeyboardButton(
-                f"{'🟢' if s_path.read_db_cell('output_device') == 'headphones_a' else '⚫'} "
-                f"{s_path.read_db_cell('volume', 'head_a')} 🩸",
+                f"{'🟢' if read_db_cell('output_device') == 'headphones_a' else '⚫'} "
+                f"{read_db_cell('volume', 'head_a')} 🩸",
                 callback_data='set_dev_head_a')])
     keyboard += [
                 [InlineKeyboardButton("⏪", callback_data='multi_pull'),
@@ -182,7 +156,7 @@ def multi_menu(update, context):
 
                 [InlineKeyboardButton("➖", callback_data='vol_down'),
                  InlineKeyboardButton("-10", callback_data="vol_down10"),
-                 InlineKeyboardButton(f"{'🔇' if s_path.read_db_cell('volume_status') == 0 else '🔊'}",
+                 InlineKeyboardButton(f"{'🔇' if read_db_cell('volume_status') == 0 else '🔊'}",
                                       callback_data='vol_on_off'),
                  InlineKeyboardButton("+10", callback_data="vol_up10"),
                  InlineKeyboardButton("➕", callback_data='vol_up')],
@@ -250,7 +224,7 @@ def app_menu(update, context):
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🌐 Opera", callback_data='opera')],
                 [InlineKeyboardButton("🕹️ Steam", callback_data='steam')]]
-    if s_path.read_db_cell("pc", None) == 2:
+    if read_db_cell("pc", None) == 2:
         keyboard.append([InlineKeyboardButton("🎨️ Stable Diffusion", callback_data='sdai')])
     keyboard += [[InlineKeyboardButton("🚀 Скрипты", callback_data='script')],
                  [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
@@ -264,7 +238,7 @@ def app_ui(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     app_on, app_off, app_sub, app_sub_text, app_ui_name = [0, 0, 0, 0, 0]
-    app_name = s_path.read_db_cell("app_name", None)
+    app_name = read_db_cell("app_name", None)
     if app_name in s_path.app_data:
         app_on, app_off, app_sub, app_sub_text, app_ui_name = s_path.app_data[app_name].values()
 
@@ -320,8 +294,8 @@ def games_menu(update, context):
 def sdai_links_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    keyboard = [[InlineKeyboardButton("🔗 Local", url=f'{s_path.read_db_cell("sd_link_local", None)}')],
-                [InlineKeyboardButton("🔗 Share", url=f'{s_path.read_db_cell("sd_link_share", None)}')],
+    keyboard = [[InlineKeyboardButton("🔗 Local", url=f'{read_db_cell("sd_link_local", None)}')],
+                [InlineKeyboardButton("🔗 Share", url=f'{read_db_cell("sd_link_share", None)}')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='sdai'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
@@ -348,18 +322,18 @@ def scr_eft_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [
-        [InlineKeyboardButton(f"1️⃣ Buyer [{s_path.read_db_cell('seft_1_set', 'value', sdb_path)}] "
-                              f"{'🟢' if s_path.read_db_cell('script_eft_1', None, sdb_path) == 1 else '⚫'}",
+        [InlineKeyboardButton(f"1️⃣ Buyer [{read_db_cell('seft_1_set', 'value', sdb_path)}] "
+                              f"{'🟢' if read_db_cell('script_eft_1', None, sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_1')]]
-    if s_path.read_db_cell("script_eft_1", None, sdb_path) == 1:
+    if read_db_cell("script_eft_1", None, sdb_path) == 1:
         keyboard.append([InlineKeyboardButton("➖", callback_data='eft_1_down'),
                         InlineKeyboardButton("5", callback_data='eft_1_5'),
                         InlineKeyboardButton("➕", callback_data='eft_1_up')])
     keyboard += [
         [InlineKeyboardButton(f"2️⃣ Simple Clicker "
-                              f"{'🟢' if s_path.read_db_cell('script_eft_2', None, sdb_path) == 1 else '⚫'}",
+                              f"{'🟢' if read_db_cell('script_eft_2', None, sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_2')],
-        [InlineKeyboardButton(f"3️⃣ [x] {'🟢' if s_path.read_db_cell('script_eft_3', None, sdb_path) == 1 else '⚫'}",
+        [InlineKeyboardButton(f"3️⃣ [x] {'🟢' if read_db_cell('script_eft_3', None, sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_3')],
         [InlineKeyboardButton("⭕ Выключить всё", callback_data='scr_eft_off')],
         [InlineKeyboardButton("🔙 Назад", callback_data='script'),
@@ -381,13 +355,13 @@ def vpn_menu(update, context):
         modified_time = os.path.getmtime(file_path)
         if modified_time != last_modified:
             # файл изменился, нужно пересчитать значение скорости
-            download = ((s_path.read_db_cell("download", 'bytes', s_con_path) * 8) /
-                        (s_path.read_db_cell("download", 'elapsed', s_con_path) * 1000))
-            upload = ((s_path.read_db_cell("upload", 'bytes', s_con_path) * 8) /
-                      (s_path.read_db_cell("upload", 'elapsed', s_con_path) * 1000))
+            download = ((read_db_cell("download", 'bytes', filename=s_con_path) * 8) /
+                        (read_db_cell("download", 'elapsed', filename=s_con_path) * 1000))
+            upload = ((read_db_cell("upload", 'bytes', filename=s_con_path) * 8) /
+                      (read_db_cell("upload", 'elapsed', filename=s_con_path) * 1000))
             sp_avg = round((download + upload) / 2, 2)
-            in_ip = s_path.read_db_cell("interface", 'internalIp', s_con_path)
-            ex_ip = s_path.read_db_cell("interface", 'externalIp', s_con_path)
+            in_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
+            ex_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
             last_modified = modified_time
         else:
             # файл не изменился, возвращаем предыдущее значение скорости
@@ -399,16 +373,16 @@ def vpn_menu(update, context):
     last_sp_avg = sp_avg
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    about = f'''[Данные сети]({s_path.read_db_cell("result", 'url', s_con_path)}):
-        _Задержка:_ `{round(s_path.read_db_cell("ping", 'latency', s_con_path), 2)}ms`
-        _Внутренний IP:_ `{s_path.read_db_cell("interface", 'internalIp',s_con_path)}`
-        _Внешний IP:_ `{s_path.read_db_cell("interface", 'externalIp',s_con_path)}`
+    about = f'''[Данные сети]({read_db_cell("result", 'url', filename=s_con_path)}):
+        _Задержка:_ `{round(read_db_cell("ping", 'latency', filename=s_con_path), 2)}ms`
+        _Внутренний IP:_ `{read_db_cell("interface", 'internalIp', filename=s_con_path)}`
+        _Внешний IP:_ `{read_db_cell("interface", 'externalIp', filename=s_con_path)}`
         '''
-    keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if s_path.read_db_cell('vpn_status') == 'DE' else '⚫'}",
+    keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if read_db_cell('vpn_status') == 'DE' else '⚫'}",
                                       callback_data='vpn_1'),
-                 InlineKeyboardButton(f"🇹🇷 TR {'🟢' if s_path.read_db_cell('vpn_status') == 'TR' else '⚫'}",
+                 InlineKeyboardButton(f"🇹🇷 TR {'🟢' if read_db_cell('vpn_status') == 'TR' else '⚫'}",
                                       callback_data='vpn_2'),
-                 InlineKeyboardButton(f"🇱🇹 LT {'🟢' if s_path.read_db_cell('vpn_status') == 'LT' else '⚫'}",
+                 InlineKeyboardButton(f"🇱🇹 LT {'🟢' if read_db_cell('vpn_status') == 'LT' else '⚫'}",
                                       callback_data='vpn_3')],
 
                 [InlineKeyboardButton(f"📶 Mbps: {sp_avg}", callback_data='con_speed'),
@@ -426,20 +400,20 @@ def set_output_device(device, query):
     os.system(f'{s_path.SETDEVDEF} {device[0]}')
     os.system(f'{s_path.SETDEVDEFCOMM} {device[0]}')
     device_name = ''
-    if s_path.read_db_cell("pc", None) == 1:
+    if read_db_cell("pc", None) == 1:
         device_name = "headphones_h" if device == s_path.SPEAK_HEAD_H \
             else "monitor_r" if device == s_path.SPEAK_MON_R \
             else "monitor_l" if device == s_path.SPEAK_MON_L \
             else "none"
         current_markup = query.message.reply_markup
         current_markup.inline_keyboard[0][
-            0].text = f"🌀 {s_path.read_db_cell('volume', 'head_h')} {'🟢' if device == s_path.SPEAK_HEAD_H else '⚫️'}"
+            0].text = f"🌀 {read_db_cell('volume', 'head_h')} {'🟢' if device == s_path.SPEAK_HEAD_H else '⚫️'}"
         current_markup.inline_keyboard[0][
-            1].text = f"{'🟢' if device == s_path.SPEAK_MON_R else '⚫️'} {s_path.read_db_cell('volume', 'mon_r')} 🖥"
+            1].text = f"{'🟢' if device == s_path.SPEAK_MON_R else '⚫️'} {read_db_cell('volume', 'mon_r')} 🖥"
         current_markup.inline_keyboard[1][
-            0].text = f"{'🟢' if device == s_path.SPEAK_MON_L else '⚫️'} {s_path.read_db_cell('volume', 'mon_l')} 🖥"
+            0].text = f"{'🟢' if device == s_path.SPEAK_MON_L else '⚫️'} {read_db_cell('volume', 'mon_l')} 🖥"
         query.edit_message_reply_markup(reply_markup=current_markup)
-    elif s_path.read_db_cell("pc", None) == 2:
+    elif read_db_cell("pc", None) == 2:
         device_name = "headphones_h" if device == s_path.SPEAK_HEAD_H \
             else "headphones_s" if device == s_path.SPEAK_HEAD_S \
             else "headphones_a" if device == s_path.SPEAK_HEAD_A \
@@ -447,15 +421,15 @@ def set_output_device(device, query):
             else "none"
         current_markup = query.message.reply_markup
         current_markup.inline_keyboard[0][
-            0].text = f"🌀 {s_path.read_db_cell('volume', 'head_h')} {'🟢' if device == s_path.SPEAK_HEAD_H else '⚫️'}"
+            0].text = f"🌀 {read_db_cell('volume', 'head_h')} {'🟢' if device == s_path.SPEAK_HEAD_H else '⚫️'}"
         current_markup.inline_keyboard[0][
-            1].text = f"{'🟢' if device == s_path.SPEAK_MON_R else '⚫️'} {s_path.read_db_cell('volume', 'mon_r')} 🖥"
+            1].text = f"{'🟢' if device == s_path.SPEAK_MON_R else '⚫️'} {read_db_cell('volume', 'mon_r')} 🖥"
         current_markup.inline_keyboard[1][
-            0].text = f"🎸 {s_path.read_db_cell('volume', 'head_s')} {'🟢' if device == s_path.SPEAK_HEAD_S else '⚫️'}"
+            0].text = f"🎸 {read_db_cell('volume', 'head_s')} {'🟢' if device == s_path.SPEAK_HEAD_S else '⚫️'}"
         current_markup.inline_keyboard[1][
-            1].text = f"{'🟢' if device == s_path.SPEAK_HEAD_A else '⚫️'} {s_path.read_db_cell('volume', 'head_a')} 🩸"
+            1].text = f"{'🟢' if device == s_path.SPEAK_HEAD_A else '⚫️'} {read_db_cell('volume', 'head_a')} 🩸"
         query.edit_message_reply_markup(reply_markup=current_markup)
-    s_path.write_db_cell("output_device", device_name)
+    write_db_cell("output_device", device_name)
 
 
 def take_screenshot(key, context, update):
@@ -483,179 +457,184 @@ def button(update, context):
     query = update.callback_query
     # user = update.effective_user
     user_id = str(query.message.chat_id)
+    if user_id not in os.getenv('ALLOWED_USERS'):
+        s_send_logs.log_form_tg(update, context, effect=False, alert=os.getenv('LOG_ALERT'))
+        s_send_logs.log_form_cmd(update, context, effect=False)
+        query.answer(text='У Вас нет доступа')
+        pass
+    else:
+        s_send_logs.log_form_tg(update, context, effect=True, alert=os.getenv('LOG_ALERT'))
+        s_send_logs.log_form_cmd(update, context, effect=True)
+        if query.data in s_path.menu_buttons:
+            eval(s_path.menu_buttons[query.data])
+        elif query.data in s_path.multi_act:
+            eval(s_path.multi_act[query.data])
+        elif query.data in s_path.apps_os_act:
+            os.system(s_path.apps_os_act[query.data])
+        elif query.data in s_path.tabs_hotkeys:
+            pyautogui.hotkey(*s_path.tabs_hotkeys[query.data])
+        elif query.data in s_path.scr_keys:
+            option = s_path.scr_keys[query.data]
+            take_screenshot(option, context, update)
+        elif query.data in s_path.dict_text_cmd:
+            command = s_path.dict_text_cmd[query.data]
+            query.answer(text=command['text'])
+            os.system(command['cmd'])
 
-    send_logs(update)
+        elif query.data in s_path.dict_text_cell:
+            command = s_path.dict_text_cell[query.data]
+            query.answer(text=command['text'])
+            s_path.user_input(1, command['cell'])
 
-    if query.data in s_path.menu_buttons:
-        eval(s_path.menu_buttons[query.data])
-    elif query.data in s_path.multi_act:
-        eval(s_path.multi_act[query.data])
-    elif query.data in s_path.apps_os_act:
-        os.system(s_path.apps_os_act[query.data])
-    elif query.data in s_path.tabs_hotkeys:
-        pyautogui.hotkey(*s_path.tabs_hotkeys[query.data])
-    elif query.data in s_path.scr_keys:
-        option = s_path.scr_keys[query.data]
-        take_screenshot(option, context, update)
-    elif query.data in s_path.dict_text_cmd:
-        command = s_path.dict_text_cmd[query.data]
-        query.answer(text=command['text'])
-        os.system(command['cmd'])
+        elif query.data in s_path.vpn_paths:
+            query.answer(text='Подключение через 5 секунд')
+            os.system(f'{s_path.VPN_TO} {s_path.vpn_paths[query.data]}')
+            if query.data == 'vpn_1':
+                write_db_cell("vpn_status", "DE")
+            elif query.data == 'vpn_2':
+                write_db_cell("vpn_status", "TR")
+            elif query.data == 'vpn_3':
+                write_db_cell("vpn_status", "LT")
+            vpn_menu(update, context)
 
-    elif query.data in s_path.dict_text_cell:
-        command = s_path.dict_text_cell[query.data]
-        query.answer(text=command['text'])
-        s_path.user_input(1, command['cell'])
-
-    elif query.data in s_path.vpn_paths:
-        query.answer(text='Подключение через 5 секунд')
-        os.system(f'{s_path.VPN_TO} {s_path.vpn_paths[query.data]}')
-        if query.data == 'vpn_1':
-            s_path.write_db_cell("vpn_status", "DE")
-        elif query.data == 'vpn_2':
-            s_path.write_db_cell("vpn_status", "TR")
-        elif query.data == 'vpn_3':
-            s_path.write_db_cell("vpn_status", "LT")
-        vpn_menu(update, context)
-
-    elif query.data == 'vol_down10':
-        query.answer(text='Громкость уменьшена на 10')
-        for _ in range(5):
-            pyautogui.press("volumedown")
-        multi_menu(update, context)
-    elif query.data == 'vol_50':
-        query.answer(text='Громкость: 50%')
-        os.system(fr'"{s_path.SETVOL}" 50')
-        multi_menu(update, context)
-    elif query.data == 'vol_up10':
-        query.answer(text='Громкость увеличена на 10')
-        for _ in range(5):
+        elif query.data == 'vol_down10':
+            query.answer(text='Громкость уменьшена на 10')
+            for _ in range(5):
+                pyautogui.press("volumedown")
+            multi_menu(update, context)
+        elif query.data == 'vol_50':
+            query.answer(text='Громкость: 50%')
+            os.system(fr'"{s_path.SETVOL}" 50')
+            multi_menu(update, context)
+        elif query.data == 'vol_up10':
+            query.answer(text='Громкость увеличена на 10')
+            for _ in range(5):
+                pyautogui.press("volumeup")
+            multi_menu(update, context)
+        elif query.data == 'vol_up':
+            query.answer(text='Громкость увеличена на 2')
             pyautogui.press("volumeup")
-        multi_menu(update, context)
-    elif query.data == 'vol_up':
-        query.answer(text='Громкость увеличена на 2')
-        pyautogui.press("volumeup")
-        multi_menu(update, context)
-    elif query.data == 'vol_down':
-        query.answer(text='Громкость уменьшена на 2')
-        pyautogui.press("volumedown")
-        multi_menu(update, context)
-    elif query.data == 'vol_on_off':
-        new_status = 0 if s_path.read_db_cell("volume_status") == 1 else 1
-        s_path.write_db_cell("volume_status", new_status)
-        current_markup = query.message.reply_markup
-        if new_status == 0:
-            current_markup.inline_keyboard[4][2].text = f"🔇"
-            # Действие по выключению звука
-            pyautogui.press("volumemute")
-        else:
-            current_markup.inline_keyboard[4][2].text = f"🔊"
-            pyautogui.press("volumemute")
-        query.edit_message_reply_markup(reply_markup=current_markup)
-    elif query.data.startswith(('scrn_del:', 'text_del:')):
-        if query.data.startswith('scrn_del:'):
-            file_name = query.data.split(':')[1]  # получаем название файла скриншота из callback_data
-            message_id = context.user_data.get(file_name)  # получаем ID сообщения из UserDict
-            if message_id:
-                context.bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
-                del context.user_data[file_name]  # удаляем запись из UserDict
-            os.remove(os.path.join(s_path.SHAREX, file_name))  # удаляем файл скриншота
+            multi_menu(update, context)
+        elif query.data == 'vol_down':
+            query.answer(text='Громкость уменьшена на 2')
+            pyautogui.press("volumedown")
+            multi_menu(update, context)
+        elif query.data == 'vol_on_off':
+            new_status = 0 if read_db_cell("volume_status") == 1 else 1
+            write_db_cell("volume_status", new_status)
+            current_markup = query.message.reply_markup
+            if new_status == 0:
+                current_markup.inline_keyboard[4][2].text = f"🔇"
+                # Действие по выключению звука
+                pyautogui.press("volumemute")
+            else:
+                current_markup.inline_keyboard[4][2].text = f"🔊"
+                pyautogui.press("volumemute")
+            query.edit_message_reply_markup(reply_markup=current_markup)
+        elif query.data.startswith(('scrn_del:', 'text_del:')):
+            if query.data.startswith('scrn_del:'):
+                file_name = query.data.split(':')[1]  # получаем название файла скриншота из callback_data
+                message_id = context.user_data.get(file_name)  # получаем ID сообщения из UserDict
+                if message_id:
+                    context.bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
+                    del context.user_data[file_name]  # удаляем запись из UserDict
+                os.remove(os.path.join(s_path.SHAREX, file_name))  # удаляем файл скриншота
 
-        elif query.data.startswith('text_del:'):
-            message_id = int(query.data.split(":")[1])
-            bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
+            elif query.data.startswith('text_del:'):
+                message_id = int(query.data.split(":")[1])
+                bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
 
-    elif query.data == 'get_copy':
-        clipboard_content = pyperclip.paste()
-        message_text = f"`{clipboard_content}`"
-        # message_text += "Нажмите кнопку \"Удалить\", чтобы удалить это сообщение"
-        message = bot.send_message(chat_id=update.effective_chat.id, text=message_text,
-                                   parse_mode=telegram.ParseMode.MARKDOWN)
-        keyboard = [[InlineKeyboardButton("Удалить", callback_data=f"text_del:{message.message_id}")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        bot.edit_message_reply_markup(
-            chat_id=update.effective_chat.id,
-            message_id=message.message_id,
-            reply_markup=reply_markup)
+        elif query.data == 'get_copy':
+            clipboard_content = pyperclip.paste()
+            message_text = f"`{clipboard_content}`"
+            # message_text += "Нажмите кнопку \"Удалить\", чтобы удалить это сообщение"
+            message = bot.send_message(chat_id=update.effective_chat.id, text=message_text,
+                                       parse_mode=telegram.ParseMode.MARKDOWN)
+            keyboard = [[InlineKeyboardButton("Удалить", callback_data=f"text_del:{message.message_id}")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            bot.edit_message_reply_markup(
+                chat_id=update.effective_chat.id,
+                message_id=message.message_id,
+                reply_markup=reply_markup)
 
-    elif query.data == 'con_speed':
-        query.answer(text='Автообновление каждые 30 секунд')
-        vpn_menu(update, context)
-    elif query.data == 'vpn_off':
-        query.answer(text='Отключение через 3 секунды')
-        os.system(f'{s_path.VPN_OFF}')
-        s_path.write_db_cell("vpn_status", "off")
-        vpn_menu(update, context)
+        elif query.data == 'con_speed':
+            query.answer(text='Автообновление каждые 30 секунд')
+            vpn_menu(update, context)
+        elif query.data == 'vpn_off':
+            query.answer(text='Отключение через 3 секунды')
+            os.system(f'{s_path.VPN_OFF}')
+            write_db_cell("vpn_status", "off")
+            vpn_menu(update, context)
 
-    elif query.data in ['opera', 'steam', 'sdai']:
-        s_path.write_db_cell("app_name", query.data, None)
-        app_ui(update, context)
-    elif query.data == 'st_on':
-        subprocess.Popen(f'{s_path.STEAM}/steam.exe')
+        elif query.data in ['opera', 'steam', 'sdai']:
+            write_db_cell("app_name", query.data, None)
+            app_ui(update, context)
+        elif query.data == 'st_on':
+            subprocess.Popen(f'{s_path.STEAM}/steam.exe')
 
-    elif query.data == 'sdai_off':
-        # os.system('taskkill /f /PID 8989898')
-        print("off - ne rabotaer")
+        elif query.data == 'sdai_off':
+            # os.system('taskkill /f /PID 8989898')
+            print("off - ne rabotaer")
 
-    elif query.data == 'scr_eft_1':
-        status = 0 if s_path.read_db_cell("script_eft_1", None, sdb_path) == 1 else 1
-        s_path.write_db_cell(f"script_eft_1", status, None, sdb_path)
-        scr_eft_menu(update, context)
-    elif query.data == 'eft_1_down':
-        x = s_path.read_db_cell("seft_1_set", 'value', sdb_path)
-        y = x - 1
-        s_path.write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
-        scr_eft_menu(update, context)
-    elif query.data == "eft_1_5":
-        s_path.write_db_cell("seft_1_set", 5, "value", "s_scripts_db.json")
-        scr_eft_menu(update, context)
-    elif query.data == 'eft_1_up':
-        x = s_path.read_db_cell("seft_1_set", 'value', sdb_path)
-        y = x + 1
-        s_path.write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
-        scr_eft_menu(update, context)
-    elif query.data == 'scr_eft_2':
-        status = 0 if s_path.read_db_cell("script_eft_2", None, sdb_path) == 1 else 1
-        s_path.write_db_cell(f"script_eft_2", status, None, sdb_path)
-        scr_eft_menu(update, context)
-    elif query.data == 'scr_eft_3':
-        status = 0 if s_path.read_db_cell("script_eft_3", None, sdb_path) == 1 else 1
-        s_path.write_db_cell(f"script_eft_3", status, None, sdb_path)
-        scr_eft_menu(update, context)
-    elif query.data == 'scr_eft_off':
-        for i in range(1, 4):
-            s_path.write_db_cell(f"script_eft_{i}", 0, sdb_path)
-        scr_eft_menu(update, context)
+        elif query.data == 'scr_eft_1':
+            status = 0 if read_db_cell("script_eft_1", None, sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_1", status, None, sdb_path)
+            scr_eft_menu(update, context)
+        elif query.data == 'eft_1_down':
+            x = read_db_cell("seft_1_set", 'value', sdb_path)
+            y = x - 1
+            write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
+            scr_eft_menu(update, context)
+        elif query.data == "eft_1_5":
+            write_db_cell("seft_1_set", 5, "value", "s_scripts_db.json")
+            scr_eft_menu(update, context)
+        elif query.data == 'eft_1_up':
+            x = read_db_cell("seft_1_set", 'value', sdb_path)
+            y = x + 1
+            write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
+            scr_eft_menu(update, context)
+        elif query.data == 'scr_eft_2':
+            status = 0 if read_db_cell("script_eft_2", None, sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_2", status, None, sdb_path)
+            scr_eft_menu(update, context)
+        elif query.data == 'scr_eft_3':
+            status = 0 if read_db_cell("script_eft_3", None, sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_3", status, None, sdb_path)
+            scr_eft_menu(update, context)
+        elif query.data == 'scr_eft_off':
+            for i in range(1, 4):
+                write_db_cell(f"script_eft_{i}", 0, sdb_path)
+            scr_eft_menu(update, context)
 
-    elif query.data == 'sel_pc_1':
-        s_path.write_db_cell("pc", 1)
-        s_path.write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
-        query.answer(text='Принудительный перезапуск')
-        about_text(update, context)
-        python = sys.executable
-        os.execv(python, [python, fr".\soda_va_bot.py"])
-    elif query.data == 'sel_pc_2':
-        s_path.write_db_cell("pc", 2)
-        s_path.write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
-        query.answer(text='Принудительный перезапуск')
-        about_text(update, context)
-        python = sys.executable
-        os.execv(python, [python, fr".\soda_va_bot.py"])
-    elif query.data == 'logger':
-        status = 0 if s_path.read_db_cell("log_status") == 1 else 1
-        s_path.write_db_cell(f"log_status", status)
-        about_text(update, context)
+        elif query.data == 'sel_pc_1':
+            write_db_cell("pc", 1)
+            write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
+            query.answer(text='Принудительный перезапуск')
+            about_text(update, context)
+            python = sys.executable
+            os.execv(python, [python, fr".\soda_va_bot.py"])
+        elif query.data == 'sel_pc_2':
+            write_db_cell("pc", 2)
+            write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
+            query.answer(text='Принудительный перезапуск')
+            about_text(update, context)
+            python = sys.executable
+            os.execv(python, [python, fr".\soda_va_bot.py"])
+        elif query.data == 'logger':
+            status = 0 if read_db_cell("log_status") == 1 else 1
+            write_db_cell(f"log_status", status)
+            about_text(update, context)
 
-    elif query.data == 'mmenu':
-        s_path.user_input(0, "none")
-        keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
-                    [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
-                    [InlineKeyboardButton("🤖 О боте", callback_data='about_bot')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        context.bot.edit_message_text(chat_id=user_id, message_id=query.message.message_id,
-                                      text=f'{s_path.filler}🔝 *Меню*',
-                                      reply_markup=reply_markup,
-                                      parse_mode=telegram.ParseMode.MARKDOWN)
+        elif query.data == 'mmenu':
+            s_path.user_input(0, "none")
+            keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
+                        [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
+                        [InlineKeyboardButton("🤖 О боте", callback_data='about_bot')]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            context.bot.edit_message_text(chat_id=user_id, message_id=query.message.message_id,
+                                          text=f'{s_path.filler}🔝 *Меню*',
+                                          reply_markup=reply_markup,
+                                          parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def handle_text(update, context):
@@ -663,14 +642,14 @@ def handle_text(update, context):
     chat_id = update.message.chat_id
     message_id = update.message.message_id
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-    if s_path.read_db_cell("waiting_input") == 1:
-        if s_path.read_db_cell("handle_type") == 'links':
+    if read_db_cell("waiting_input") == 1:
+        if read_db_cell("handle_type") == 'links':
             urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
             message_text = urls[0]
             os.system(f'{s_path.BROWSER} "{message_text}"')
-        elif s_path.read_db_cell("handle_type") == 'clipboard':
+        elif read_db_cell("handle_type") == 'clipboard':
             pyperclip.copy(message_text)
-        elif s_path.read_db_cell("handle_type") == 'game':
+        elif read_db_cell("handle_type") == 'game':
             def get_appid(name):
                 url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"
                 response = requests.get(url)
