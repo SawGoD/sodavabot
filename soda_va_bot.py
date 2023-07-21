@@ -322,18 +322,18 @@ def scr_eft_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [
-        [InlineKeyboardButton(f"1️⃣ Buyer [{read_db_cell('seft_1_set', 'value', sdb_path)}] "
-                              f"{'🟢' if read_db_cell('script_eft_1', None, sdb_path) == 1 else '⚫'}",
+        [InlineKeyboardButton(f"1️⃣ Buyer [{read_db_cell('seft_1_set', 'value', filename=sdb_path)}] "
+                              f"{'🟢' if read_db_cell('script_eft_1', None, filename=sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_1')]]
-    if read_db_cell("script_eft_1", None, sdb_path) == 1:
+    if read_db_cell("script_eft_1", None, filename=sdb_path) == 1:
         keyboard.append([InlineKeyboardButton("➖", callback_data='eft_1_down'),
                         InlineKeyboardButton("5", callback_data='eft_1_5'),
                         InlineKeyboardButton("➕", callback_data='eft_1_up')])
     keyboard += [
         [InlineKeyboardButton(f"2️⃣ Simple Clicker "
-                              f"{'🟢' if read_db_cell('script_eft_2', None, sdb_path) == 1 else '⚫'}",
+                              f"{'🟢' if read_db_cell('script_eft_2', None, filename=sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_2')],
-        [InlineKeyboardButton(f"3️⃣ [x] {'🟢' if read_db_cell('script_eft_3', None, sdb_path) == 1 else '⚫'}",
+        [InlineKeyboardButton(f"3️⃣ [x] {'🟢' if read_db_cell('script_eft_3', None, filename=sdb_path) == 1 else '⚫'}",
                               callback_data='scr_eft_3')],
         [InlineKeyboardButton("⭕ Выключить всё", callback_data='scr_eft_off')],
         [InlineKeyboardButton("🔙 Назад", callback_data='script'),
@@ -577,33 +577,33 @@ def button(update, context):
             print("off - ne rabotaer")
 
         elif query.data == 'scr_eft_1':
-            status = 0 if read_db_cell("script_eft_1", None, sdb_path) == 1 else 1
-            write_db_cell(f"script_eft_1", status, None, sdb_path)
+            status = 0 if read_db_cell("script_eft_1", None, filename=sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_1", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'eft_1_down':
-            x = read_db_cell("seft_1_set", 'value', sdb_path)
+            x = read_db_cell("seft_1_set", 'value', filename=sdb_path)
             y = x - 1
-            write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
+            write_db_cell("seft_1_set", y, "value", filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == "eft_1_5":
-            write_db_cell("seft_1_set", 5, "value", "s_scripts_db.json")
+            write_db_cell("seft_1_set", 5, "value", filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'eft_1_up':
-            x = read_db_cell("seft_1_set", 'value', sdb_path)
+            x = read_db_cell("seft_1_set", 'value', filename=sdb_path)
             y = x + 1
-            write_db_cell("seft_1_set", y, "value", "s_scripts_db.json")
+            write_db_cell("seft_1_set", y, "value", filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_2':
-            status = 0 if read_db_cell("script_eft_2", None, sdb_path) == 1 else 1
-            write_db_cell(f"script_eft_2", status, None, sdb_path)
+            status = 0 if read_db_cell("script_eft_2", None, filename=sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_2", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_3':
-            status = 0 if read_db_cell("script_eft_3", None, sdb_path) == 1 else 1
-            write_db_cell(f"script_eft_3", status, None, sdb_path)
+            status = 0 if read_db_cell("script_eft_3", None, filename=sdb_path) == 1 else 1
+            write_db_cell(f"script_eft_3", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_off':
             for i in range(1, 4):
-                write_db_cell(f"script_eft_{i}", 0, sdb_path)
+                write_db_cell(f"script_eft_{i}", 0, filename=sdb_path)
             scr_eft_menu(update, context)
 
         elif query.data == 'sel_pc_1':
