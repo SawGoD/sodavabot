@@ -6,6 +6,7 @@ def create_main_db():
     filepath = ".\\data\\s_main_db.json"
     if not os.path.exists(filepath):
         data = {
+            "sound_status": 1,
             "log_status": 1,
             "pc": 2,
             "cur_pc": "👩🏻‍💻 Домашний ПК",

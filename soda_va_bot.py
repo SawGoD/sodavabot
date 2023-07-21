@@ -14,6 +14,7 @@ import s_send_logs
 from dotenv import load_dotenv
 from s_scripts_list import sdb_path, thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
 from s_handle_db import read_db_cell, write_db_cell, clear_db
+from s_path import sound_alert
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
@@ -114,6 +115,8 @@ def about_text(update, context):
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
                 [InlineKeyboardButton(f"📝 Логирование {'🟢' if read_db_cell('log_status') == 1 else '⚫'}",
                                       callback_data='logger')],
+                [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
+                                      callback_data='sounds')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🤖 *О боте*\n {about}",
@@ -451,6 +454,10 @@ def take_screenshot(key, context, update):
                                                                         callback_data=f"scrn_del:{filename}")
                                                ]]))
         context.user_data[filename] = photo_message.message_id  # сохраняем ID сообщения в UserDict
+    if read_db_cell("sound_status") == 1:
+        sound_alert("sound_screenshot.mp3")
+    else:
+        pass
 
 
 def button(update, context):
@@ -624,6 +631,10 @@ def button(update, context):
             status = 0 if read_db_cell("log_status") == 1 else 1
             write_db_cell(f"log_status", status)
             about_text(update, context)
+        elif query.data == 'sounds':
+            status = 0 if read_db_cell("sound_status") == 1 else 1
+            write_db_cell(f"sound_status", status)
+            about_text(update, context)
 
         elif query.data == 'mmenu':
             s_path.user_input(0, "none")
@@ -677,6 +688,10 @@ def handle_text(update, context):
                 print(f"Игра {game_name} не найдена")
     else:
         pyperclip.copy(message_text)
+    if read_db_cell("sound_status") == 1:
+        sound_alert("sound_text_in.mp3")
+    else:
+        pass
 
 
 def main():

@@ -1,0 +1,32 @@
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\dispatcher.py", line 555, in process_update
+    handler.handle_update(update, self, check, context)
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
+    return self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Soda_VA_BOT\soda_va_bot.py", line 473, in button
+    s_send_logs.log_form_tg(update, context, effect=True, alert=os.getenv('LOG_ALERT'))
+  File "C:\Soda_VA_BOT\s_send_logs.py", line 59, in log_form_tg
+    bot.send_message(chat_id=os.getenv('LOG_OUTPUT'),
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 513, in send_message
+    return self._message(  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 332, in _message
+    result = self._post(endpoint, data, timeout=timeout, api_kwargs=api_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 272, in _request_wrapper
+    message = str(self._parse(resp.data))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 230, in _parse
+    raise RetryAfter(retry_after)
+telegram.error.RetryAfter: Flood control exceeded. Retry in 18.0 seconds

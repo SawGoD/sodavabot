@@ -3,10 +3,9 @@ import datetime
 import threading
 import subprocess
 import s_file_gen
+import pyglet
 # import concurrent.futures
 import winreg
-import json
-import os
 from s_handle_db import read_db_cell, write_db_cell, clear_db
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
@@ -196,6 +195,20 @@ tabs_hotkeys = {
 }
 
 
+def on_player_eos():
+    print("Sound finished playing")
+    pyglet.app.exit()
+
+
+def sound_alert(filename):
+    player = pyglet.media.Player()
+    source = pyglet.media.load(f"./resource/sounds/{filename}")
+    player.on_player_eos = on_player_eos
+    player.queue(source)
+    player.play()
+    pyglet.app.run()
+
+
 def ver_greet():
     daten, timen = clock()
     for i in range(1):
@@ -206,6 +219,10 @@ def ver_greet():
     print("Время:", timen)
     print("==================")
     print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
+    if read_db_cell("sound_status") == 1:
+        sound_alert("sound_start.mp3")
+    else:
+        pass
 
 
 filler = '==================================\n'
