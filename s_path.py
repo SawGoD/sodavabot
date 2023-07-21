@@ -195,18 +195,12 @@ tabs_hotkeys = {
 }
 
 
-def on_player_eos():
-    print("Sound finished playing")
-    pyglet.app.exit()
-
-
 def sound_alert(filename):
     player = pyglet.media.Player()
     source = pyglet.media.load(f"./resource/sounds/{filename}")
-    player.on_player_eos = on_player_eos
     player.queue(source)
     player.play()
-    pyglet.app.run()
+    time.sleep(2.5)
 
 
 def ver_greet():
@@ -221,8 +215,6 @@ def ver_greet():
     print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
     if read_db_cell("sound_status") == 1:
         sound_alert("sound_start.mp3")
-    else:
-        pass
 
 
 filler = '==================================\n'

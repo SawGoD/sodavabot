@@ -456,8 +456,6 @@ def take_screenshot(key, context, update):
         context.user_data[filename] = photo_message.message_id  # сохраняем ID сообщения в UserDict
     if read_db_cell("sound_status") == 1:
         sound_alert("sound_screenshot.mp3")
-    else:
-        pass
 
 
 def button(update, context):
@@ -486,6 +484,9 @@ def button(update, context):
         elif query.data in s_path.dict_text_cmd:
             command = s_path.dict_text_cmd[query.data]
             query.answer(text=command['text'])
+            if read_db_cell("sound_status") == 1:
+                if query.data in {'pc_off', 'pc_reb'}:
+                    sound_alert("sound_shutdown.mp3")
             os.system(command['cmd'])
 
         elif query.data in s_path.dict_text_cell:
@@ -690,8 +691,6 @@ def handle_text(update, context):
         pyperclip.copy(message_text)
     if read_db_cell("sound_status") == 1:
         sound_alert("sound_text_in.mp3")
-    else:
-        pass
 
 
 def main():
