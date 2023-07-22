@@ -1,8 +1,5 @@
 No error handlers are registered, logging exception.
 Traceback (most recent call last):
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 614, in urlopen
-    httplib_response = self._make_request(conn, method, url,
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 402, in _make_request
     six.raise_from(e, None)
   File "<string>", line 2, in raise_from
@@ -14,9 +11,19 @@ Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 318, in begin
     version, status, reason = self._read_status()
                               ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 287, in _read_status
-    raise RemoteDisconnected("Remote end closed connection without"
-http.client.RemoteDisconnected: Remote end closed connection without response
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\ssl.py", line 1278, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\ssl.py", line 1134, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
 
 During handling of the above exception, another exception occurred:
 
@@ -39,11 +46,49 @@ Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\util\retry.py", line 347, in increment
     raise six.reraise(type(error), error, _stacktrace)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\packages\six.py", line 685, in reraise
-    raise value.with_traceback(tb)
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\packages\six.py", line 686, in reraise
+    raise value
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 614, in urlopen
     httplib_response = self._make_request(conn, method, url,
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 404, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout,
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 321, in _raise_timeout
+    raise exc_cls(*args)
+telegram.vendor.ptb_urllib3.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read timeout=5.0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\dispatcher.py", line 555, in process_update
+    handler.handle_update(update, self, check, context)
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
+    return self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Soda_VA_BOT\soda_va_bot.py", line 72, in restart
+    s_send_logs.log_form_tg(update, context, cmd="restart")
+  File "C:\Soda_VA_BOT\s_send_logs.py", line 59, in log_form_tg
+    bot.send_message(chat_id=os.getenv('LOG_OUTPUT'),
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 513, in send_message
+    return self._message(  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 332, in _message
+    result = self._post(endpoint, data, timeout=timeout, api_kwargs=api_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 261, in _request_wrapper
+    raise TimedOut() from error
+telegram.error.TimedOut: Timed out
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 402, in _make_request
     six.raise_from(e, None)
   File "<string>", line 2, in raise_from
@@ -55,9 +100,51 @@ Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 318, in begin
     version, status, reason = self._read_status()
                               ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 287, in _read_status
-    raise RemoteDisconnected("Remote end closed connection without"
-telegram.vendor.ptb_urllib3.urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\ssl.py", line 1278, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\ssl.py", line 1134, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 259, in _request_wrapper
+    resp = self._con_pool.request(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\request.py", line 68, in request
+    return self.request_encode_body(method, url, fields=fields,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\request.py", line 148, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\poolmanager.py", line 244, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 665, in urlopen
+    retries = retries.increment(method, url, error=e, _pool=self,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\util\retry.py", line 347, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\packages\six.py", line 686, in reraise
+    raise value
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 614, in urlopen
+    httplib_response = self._make_request(conn, method, url,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 404, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout,
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\vendor\ptb_urllib3\urllib3\connectionpool.py", line 321, in _raise_timeout
+    raise exc_cls(*args)
+telegram.vendor.ptb_urllib3.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read timeout=5.0)
 
 The above exception was the direct cause of the following exception:
 
@@ -67,26 +154,16 @@ Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\handler.py", line 198, in handle_update
     return self.callback(update, context)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Soda_VA_BOT\soda_va_bot.py", line 474, in button
-    eval(s_path.menu_buttons[query.data])
-  File "<string>", line 1, in <module>
-  File "C:\Soda_VA_BOT\soda_va_bot.py", line 101, in computer_menu
-    query.edit_message_text(text=f"{s_path.filler}🖥 *Компьютер*",
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\callbackquery.py", line 216, in edit_message_text
-    return self.message.edit_text(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\message.py", line 1935, in edit_text
-    return self.bot.edit_message_text(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Soda_VA_BOT\soda_va_bot.py", line 72, in restart
+    s_send_logs.log_form_tg(update, context, cmd="restart")
+  File "C:\Soda_VA_BOT\s_send_logs.py", line 59, in log_form_tg
+    bot.send_message(chat_id=os.getenv('LOG_OUTPUT'),
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 130, in decorator
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 2582, in edit_message_text
-    return self._message(
-           ^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\ext\extbot.py", line 199, in _message
-    result = super()._message(
-             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 513, in send_message
+    return self._message(  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\bot.py", line 332, in _message
     result = self._post(endpoint, data, timeout=timeout, api_kwargs=api_kwargs)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,6 +173,6 @@ Traceback (most recent call last):
   File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 356, in post
     result = self._request_wrapper(
              ^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 265, in _request_wrapper
-    raise NetworkError(f'urllib3 HTTPError {error}') from error
-telegram.error.NetworkError: urllib3 HTTPError ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+  File "C:\Users\seego\AppData\Local\Programs\Python\Python311\Lib\site-packages\telegram\utils\request.py", line 261, in _request_wrapper
+    raise TimedOut() from error
+telegram.error.TimedOut: Timed out

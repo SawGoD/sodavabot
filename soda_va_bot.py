@@ -69,7 +69,6 @@ def restart(update, context):
     user = update.effective_user
     username = user.username
     daten, timen = clock()
-    s_send_logs.log_form_tg(update, context, cmd="restart")
     if user_id not in os.getenv('ALLOWED_USERS'):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
         s_send_logs.log_form_cmd(update, context, effect=False, cmd="restart")
@@ -654,43 +653,51 @@ def handle_text(update, context):
     chat_id = update.message.chat_id
     message_id = update.message.message_id
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-    if read_db_cell("waiting_input") == 1:
-        if read_db_cell("handle_type") == 'links':
-            urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
-            message_text = urls[0]
-            os.system(f'{s_path.BROWSER} "{message_text}"')
-        elif read_db_cell("handle_type") == 'clipboard':
-            pyperclip.copy(message_text)
-        elif read_db_cell("handle_type") == 'game':
-            def get_appid(name):
-                url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"
-                response = requests.get(url)
-
-                if response.status_code == 200:
-                    data = response.json()
-                    app_list = data["applist"]["apps"]
-                    for app in app_list:
-                        if app["name"].lower() == name.lower():
-                            return app["appid"]
-                return None
-
-            game_name = message_text[:-6]
-            code_2fa = message_text[-5:]
-            appid = get_appid(game_name)
-            if appid:
-                print(f"AppID игры {game_name}: {appid}")
-                install_dir = fr'{s_path.STEAM}/steamapps/common/'
-                cmd = f'"{s_path.STEAMCMD}" +force_install_dir {install_dir}' \
-                      f' +login {str(os.getenv("STEAM_LOGIN"))} {str(os.getenv("STEAM_PASS"))} {str(code_2fa)} ' \
-                      f'+app_update {str(appid)} validate +quit'
-                # lets_install = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                os.system(cmd)
-            else:
-                print(f"Игра {game_name} не найдена")
+    user_id = str(update.message.chat_id)
+    if user_id not in os.getenv('ALLOWED_USERS'):
+        context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
+        s_send_logs.log_form_cmd(update, context, effect=False, cmd="handle_text")
+        s_send_logs.log_form_tg(update, context, effect=False, cmd="handle_text")
     else:
-        pyperclip.copy(message_text)
-    if read_db_cell("sound_status") == 1:
-        sound_alert("sound_text_in.mp3")
+        s_send_logs.log_form_cmd(update, context, effect=True, cmd="handle_text")
+        s_send_logs.log_form_tg(update, context, effect=True, cmd="handle_text")
+        if read_db_cell("waiting_input") == 1:
+            if read_db_cell("handle_type") == 'links':
+                urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
+                message_text = urls[0]
+                os.system(f'{s_path.BROWSER} "{message_text}"')
+            elif read_db_cell("handle_type") == 'clipboard':
+                pyperclip.copy(message_text)
+            elif read_db_cell("handle_type") == 'game':
+                def get_appid(name):
+                    url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"
+                    response = requests.get(url)
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        app_list = data["applist"]["apps"]
+                        for app in app_list:
+                            if app["name"].lower() == name.lower():
+                                return app["appid"]
+                    return None
+
+                game_name = message_text[:-6]
+                code_2fa = message_text[-5:]
+                appid = get_appid(game_name)
+                if appid:
+                    print(f"AppID игры {game_name}: {appid}")
+                    install_dir = fr'{s_path.STEAM}/steamapps/common/'
+                    cmd = f'"{s_path.STEAMCMD}" +force_install_dir {install_dir}' \
+                          f' +login {str(os.getenv("STEAM_LOGIN"))} {str(os.getenv("STEAM_PASS"))} {str(code_2fa)} ' \
+                          f'+app_update {str(appid)} validate +quit'
+                    # lets_install = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                    os.system(cmd)
+                else:
+                    print(f"Игра {game_name} не найдена")
+        else:
+            pyperclip.copy(message_text)
+        if read_db_cell("sound_status") == 1:
+            sound_alert("sound_text_in.mp3")
 
 
 def main():
