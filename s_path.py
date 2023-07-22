@@ -200,7 +200,7 @@ def sound_alert(filename):
     source = pyglet.media.load(f"./resource/sounds/{filename}")
     player.queue(source)
     player.play()
-    time.sleep(2.5)
+    time.sleep(2)
 
 
 def ver_greet():
@@ -214,7 +214,7 @@ def ver_greet():
     print("==================")
     print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
     if read_db_cell("sound_status") == 1:
-        sound_alert("sound_start.mp3")
+        sound_alert("sound_greet.mp3")
 
 
 filler = '==================================\n'
