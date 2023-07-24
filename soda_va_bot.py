@@ -13,14 +13,12 @@ import requests
 import s_send_logs
 from dotenv import load_dotenv
 from s_scripts_list import sdb_path, thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
-from s_handle_db import read_db_cell, write_db_cell, clear_db
+from s_handle_db import read_db_cell, write_db_cell
 from s_path import sound_alert
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-s_path.ver_greet()
-s_path.thread_speed_test.start()
 thread_script_eft_1.start()
 thread_script_eft_2.start()
 thread_script_eft_3.start()
@@ -375,10 +373,14 @@ def vpn_menu(update, context):
     last_sp_avg = sp_avg
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    about = f'''[Данные сети]({read_db_cell("result", 'url', filename=s_con_path)}):
-        _Задержка:_ `{round(read_db_cell("ping", 'latency', filename=s_con_path), 2)}ms`
-        _Внутренний IP:_ `{read_db_cell("interface", 'internalIp', filename=s_con_path)}`
-        _Внешний IP:_ `{read_db_cell("interface", 'externalIp', filename=s_con_path)}`
+    url = read_db_cell("result", 'url', filename=s_con_path)
+    ping = round(read_db_cell("ping", 'latency', filename=s_con_path), 2)
+    int_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
+    ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
+    about = f'''[Данные сети]({url}):
+        _Задержка:_ `{ping}ms`
+        _Внутренний IP:_ `{int_ip}`
+        _Внешний IP:_ `{ext_ip}`
         '''
     keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if read_db_cell('vpn_status') == 'DE' else '⚫'}",
                                       callback_data='vpn_1'),
@@ -703,9 +705,12 @@ def handle_text(update, context):
 def main():
     with open(r'.\logs\error_py.txt', 'w', encoding='utf-8') as f:
         sys.stderr = f
+        python = sys.executable
         try:
             while True:
                 try:
+                    s_path.ver_greet()
+                    s_path.thread_speed_test.start()
                     updater = Updater(f'{TOKEN}', use_context=True)
                     dp = updater.dispatcher
                     dp.add_handler(CommandHandler('start', start))
@@ -717,15 +722,18 @@ def main():
                     pass
                 except NetworkError:
                     # Обработка ошибки "потеря соединения"
-                    print(f'Соединение потеряно. Повторное подключение...')
+                    s_send_logs.log_form_cmd(update=None, context=None, cmd="Подключение", effect="отсутствует",
+                                             action="Перезапуск")
                     time.sleep(5)
+                    os.execv(python, [python, fr".\soda_va_bot.py"])
                 except Unauthorized:
                     # Обработка ошибки "неавторизованный доступ"
-                    print('Ошибка авторизации. Проверьте токен.')
-                    break
-                except Exception as e:
+                    s_send_logs.log_form_cmd(update=None, context=None, cmd="Токен", effect="неверный",
+                                             action="Ожидание перезапуска")
                     # Общая обработка всех остальных ошибок
-                    print(f'Error occurred: {e}')
+                except Exception as e:
+                    s_send_logs.log_form_cmd(update=None, context=None, cmd="Ошибка", effect=f"'{e}'",
+                                             action="Ожидание перезапуска")
                     time.sleep(5)
         except Exception as e:
             sys.stderr.write(str(e))

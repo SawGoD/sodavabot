@@ -4,13 +4,14 @@ import threading
 import subprocess
 import s_file_gen
 import pyglet
+import s_send_logs
 # import concurrent.futures
 import winreg
 from s_handle_db import read_db_cell, write_db_cell, clear_db
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
 
-ver = str(f'{start_date}.21b')
+ver = str(f'{start_date}.24b')
 
 
 def clock():
@@ -242,17 +243,20 @@ def get_volume():
 
 
 def speed_test():
-    print("Модуль измерения скорости запущен.")
+    s_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="запущен", effect=True)
     while True:
-        p = subprocess.Popen(fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
-                             stdout=subprocess.PIPE, shell=True, text=True)
-        # Ждем 30 секунд до окончания проверки
-        time.sleep(30)
-        # Получаем результат выполнения команды
-        result = p.communicate()[0]
-        # Сохраняем результат в файл
-        with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
-            f.write(result)
+        try:
+            p = subprocess.Popen(
+                fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
+                shell=True, text=True)
+            time.sleep(30)
+            result = p.communicate()[0]
+            with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
+                f.write(result)
+        except:
+            s_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="работает",
+                                     effect=False)
 
 
 thread_speed_test = threading.Thread(target=speed_test)

@@ -19,7 +19,7 @@ def clock():
     return now_date, now_time
 
 
-def log_form_tg(update, context, effect=True, cmd=None, alert=None):
+def log_form_tg(update, context, cmd=None, effect=True, alert=None):
     if read_db_cell("log_status") == 1:
         query = update.callback_query
         daten, timen = clock()
@@ -62,19 +62,27 @@ def log_form_tg(update, context, effect=True, cmd=None, alert=None):
         pass
 
 
-def log_form_cmd(update, context, effect=True, cmd=None):
+def log_form_cmd(update, context, cmd=None, action=None, effect=True):
     # Log type: command, query
-    query = update.callback_query
     daten, timen = clock()
-    if query and query.message:
-        user_id = str(query.message.chat_id)
-        user = update.effective_user
-        username = user.username
-        query_log = str(query.data)
-        print(f"Лог: @{username}/ID_{user_id} использует {query_log}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
-    else:
-        user_id = str(update.message.chat_id)
-        user = update.effective_user
-        username = user.username
-        print(f"Лог: @{username}/ID_{user_id} использует {cmd}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
+    if update is None:
+        if effect is True:
+            print(f"Лог: {cmd} {action}|{timen}")
+        elif effect is False:
+            print(f"Лог: {cmd} не {action}|{timen}")
+        else:
+            print(f"Лог: {cmd} {effect}|Действие: {action}|{timen}")
+    elif update:
+        query = update.callback_query
+        if query and query.message:
+            user_id = str(query.message.chat_id)
+            user = update.effective_user
+            username = user.username
+            query_log = str(query.data)
+            print(f"Лог: @{username}/ID_{user_id} использует {query_log}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
+        else:
+            user_id = str(update.message.chat_id)
+            user = update.effective_user
+            username = user.username
+            print(f"Лог: @{username}/ID_{user_id} использует {cmd}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
 
