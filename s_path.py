@@ -11,7 +11,7 @@ from s_handle_db import read_db_cell, write_db_cell, clear_db
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
 
-ver = str(f'{start_date}.24b')
+ver = str(f'{start_date}.26b')
 
 
 def clock():
@@ -89,7 +89,9 @@ menu_buttons = {
     'computer': 'computer_menu(update, context)',
     'apps': 'app_menu(update, context)',
 
-    'about_bot': 'about_text(update, context)',
+    'bot_about': 'bot_about(update, context)',
+    'bot_settings': 'bot_settings(update, context)',
+    'bot_changes': 'bot_changes(update, context)',
 
     'multi': 'multi_menu(update, context)',
     'pc': 'pc_menu(update, context)',
@@ -103,7 +105,7 @@ menu_buttons = {
     'st_games': 'games_menu(update, context)',
 
     'script': 'scripts_menu(update, context)',
-    'scr_eft': 'scr_eft_menu(update, context)',
+    'scr_eft': 'scr_eft_menu(update, context)'
 }
 
 dict_text_cmd = {
@@ -245,18 +247,14 @@ def get_volume():
 def speed_test():
     s_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="запущен", effect=True)
     while True:
-        try:
-            p = subprocess.Popen(
-                fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
-                shell=True, text=True)
-            time.sleep(30)
-            result = p.communicate()[0]
-            with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
-                f.write(result)
-        except:
-            s_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="работает",
-                                     effect=False)
+        p = subprocess.Popen(
+            fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
+            shell=True, text=True)
+        time.sleep(30)
+        result = p.communicate()[0]
+        with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
+            f.write(result)
 
 
 thread_speed_test = threading.Thread(target=speed_test)

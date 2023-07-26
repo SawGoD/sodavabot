@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from s_scripts_list import sdb_path, thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
 from s_handle_db import read_db_cell, write_db_cell
 from s_path import sound_alert
+from s_github import get_changes
 from telegram.error import NetworkError, Unauthorized
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
@@ -52,7 +53,7 @@ def start(update, context):
         context.bot.send_message(chat_id=user_id, text=f"_Подключено_", parse_mode=telegram.ParseMode.MARKDOWN)
         keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                     [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
-                    [InlineKeyboardButton("🤖 О боте", callback_data='about_bot')]]
+                    [InlineKeyboardButton("🤖 О боте", callback_data='bot_about')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_message(chat_id=user_id, text=f'{s_path.filler}🔝 *Меню*',
                                  reply_markup=reply_markup,
@@ -100,7 +101,7 @@ def computer_menu(update, context):
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def about_text(update, context):
+def bot_about(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     about = f'''"SODA VA BOT"
@@ -110,14 +111,40 @@ def about_text(update, context):
 Выберите ПК:'''
     keyboard = [[InlineKeyboardButton("👨🏻‍💻 Work", callback_data='sel_pc_1'),
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
-                [InlineKeyboardButton(f"📝 Логирование {'🟢' if read_db_cell('log_status') == 1 else '⚫'}",
-                                      callback_data='logger')],
-                [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
-                                      callback_data='sounds')],
+                [InlineKeyboardButton("🆕 Изменения", callback_data='bot_changes')],
+                [InlineKeyboardButton("⚙️ Настройки", callback_data='bot_settings')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🤖 *О боте*\n {about}",
                             reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def bot_settings(update, context):
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    keyboard = [[InlineKeyboardButton(f"📝 Логирование {'🟢' if read_db_cell('log_status') == 1 else '⚫'}",
+                                      callback_data='logger')],
+                [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
+                                      callback_data='sounds')],
+                [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
+                 InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{s_path.filler}⚙️ *Настройки*",
+                            reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def bot_changes(update, context):
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
+                 InlineKeyboardButton("🔄", callback_data='bot_changes'),
+                 InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{s_path.filler}🆕️ *Изменения*\n {get_changes()}",
+                            reply_markup=reply_markup,
+                            disable_web_page_preview=True,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
@@ -619,30 +646,30 @@ def button(update, context):
             write_db_cell("pc", 1)
             write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
             query.answer(text='Принудительный перезапуск')
-            about_text(update, context)
+            bot_about(update, context)
             python = sys.executable
             os.execv(python, [python, fr".\soda_va_bot.py"])
         elif query.data == 'sel_pc_2':
             write_db_cell("pc", 2)
             write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
             query.answer(text='Принудительный перезапуск')
-            about_text(update, context)
+            bot_about(update, context)
             python = sys.executable
             os.execv(python, [python, fr".\soda_va_bot.py"])
         elif query.data == 'logger':
             status = 0 if read_db_cell("log_status") == 1 else 1
             write_db_cell(f"log_status", status)
-            about_text(update, context)
+            bot_about(update, context)
         elif query.data == 'sounds':
             status = 0 if read_db_cell("sound_status") == 1 else 1
             write_db_cell(f"sound_status", status)
-            about_text(update, context)
+            bot_about(update, context)
 
         elif query.data == 'mmenu':
             s_path.user_input(0, "none")
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                         [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
-                        [InlineKeyboardButton("🤖 О боте", callback_data='about_bot')]]
+                        [InlineKeyboardButton("🤖 О боте", callback_data='bot_about')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             context.bot.edit_message_text(chat_id=user_id, message_id=query.message.message_id,
                                           text=f'{s_path.filler}🔝 *Меню*',
