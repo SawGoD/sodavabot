@@ -138,11 +138,22 @@ def bot_settings(update, context):
 def bot_changes(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
-                 InlineKeyboardButton("🔄", callback_data='bot_changes'),
+
+    c_from_ = read_db_cell("menu_range", "min")
+    c_to_ = read_db_cell("menu_range", "max")
+
+    keyboard = [[InlineKeyboardButton("🔄", callback_data='bot_changes')]]
+    if c_from_ <= 0:
+        keyboard.append([InlineKeyboardButton(">", callback_data='bot_changes_right')])
+    elif c_to_ >= read_db_cell("menu_range", "last"):
+        keyboard.append([InlineKeyboardButton("<", callback_data='bot_changes_left')])
+    else:
+        keyboard.append([InlineKeyboardButton("<", callback_data='bot_changes_left'),
+                         InlineKeyboardButton(">", callback_data='bot_changes_right')])
+    keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🆕️ *Изменения*\n {get_changes()}",
+    query.edit_message_text(text=f"{s_path.filler}🆕️ *Изменения*\n {get_changes(c_from_, c_to_)}",
                             reply_markup=reply_markup,
                             disable_web_page_preview=True,
                             parse_mode=telegram.ParseMode.MARKDOWN)
@@ -664,6 +675,14 @@ def button(update, context):
             status = 0 if read_db_cell("sound_status") == 1 else 1
             write_db_cell(f"sound_status", status)
             bot_about(update, context)
+        elif query.data == 'bot_changes_right':
+            write_db_cell("menu_range", read_db_cell('menu_range', 'min') + 5, "min")
+            write_db_cell("menu_range", read_db_cell('menu_range', 'max') + 5, "max")
+            bot_changes(update, context)
+        elif query.data == 'bot_changes_left':
+            write_db_cell("menu_range", read_db_cell('menu_range', 'min') - 5, "min")
+            write_db_cell("menu_range", read_db_cell('menu_range', 'max') - 5, "max")
+            bot_changes(update, context)
 
         elif query.data == 'mmenu':
             s_path.user_input(0, "none")

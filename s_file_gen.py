@@ -19,6 +19,11 @@ def create_main_db():
                 "mon_r": 0,
                 "mon_l": 0
             },
+            "menu_range": {
+                "min": 0,
+                "max": 5,
+                "last": 30
+            },
             "app_name": "",
             "waiting_input": 0,
             "handle_type": "none",
