@@ -144,12 +144,12 @@ def bot_changes(update, context):
 
     keyboard = [[InlineKeyboardButton("🔄", callback_data='bot_changes')]]
     if c_from_ <= 0:
-        keyboard.append([InlineKeyboardButton(">", callback_data='bot_changes_right')])
+        keyboard.append([InlineKeyboardButton("▶️", callback_data='bot_changes_right')])
     elif c_to_ >= read_db_cell("menu_range", "last"):
-        keyboard.append([InlineKeyboardButton("<", callback_data='bot_changes_left')])
+        keyboard.append([InlineKeyboardButton("◀️", callback_data='bot_changes_left')])
     else:
-        keyboard.append([InlineKeyboardButton("<", callback_data='bot_changes_left'),
-                         InlineKeyboardButton(">", callback_data='bot_changes_right')])
+        keyboard.append([InlineKeyboardButton("◀️", callback_data='bot_changes_left'),
+                         InlineKeyboardButton("▶️", callback_data='bot_changes_right')])
     keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -678,10 +678,12 @@ def button(update, context):
         elif query.data == 'bot_changes_right':
             write_db_cell("menu_range", read_db_cell('menu_range', 'min') + 5, "min")
             write_db_cell("menu_range", read_db_cell('menu_range', 'max') + 5, "max")
+            write_db_cell("menu_range", read_db_cell('menu_range', 'page') + 1, "page")
             bot_changes(update, context)
         elif query.data == 'bot_changes_left':
             write_db_cell("menu_range", read_db_cell('menu_range', 'min') - 5, "min")
             write_db_cell("menu_range", read_db_cell('menu_range', 'max') - 5, "max")
+            write_db_cell("menu_range", read_db_cell('menu_range', 'page') - 1, "page")
             bot_changes(update, context)
 
         elif query.data == 'mmenu':

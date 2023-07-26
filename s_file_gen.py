@@ -22,6 +22,7 @@ def create_main_db():
             "menu_range": {
                 "min": 0,
                 "max": 5,
+                "page": 6,
                 "last": 30
             },
             "app_name": "",
@@ -47,7 +48,8 @@ def crete_env():
                "LOG_OUTPUT=replace\n" \
                "LOG_ALERT={'screen', 'scrn_full', 'scrn_mon', 'scrn_app', 'logger'}\n" \
                "STEAM_LOGIN=replace\n" \
-               "STEAM_PASS=replace\n"\
+               "STEAM_PASS=replace\n" \
+               "API_TOKEN_GIT=replace\n" \
                "API_TOKEN=replace\n"
         with open('.env', 'w') as file:
             file.write(data)
