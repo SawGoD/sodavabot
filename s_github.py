@@ -7,18 +7,14 @@ load_dotenv()
 
 
 def get_changes(c_from=0, c_to=5):
-    url = f"https://api.github.com/repos/SawGoD/sodavabot/commits"
+    url = f"https://api.github.com/repos/SawGoD/sodavabot/commits?per_page=99"
     response = requests.get(url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
-    output = ""
+    output = "Последние изменения:\n"
     if response.status_code == 200:
         commits = response.json()
         c_max = int(len(commits))
         write_db_cell("menu_range", c_max, "last")
-        c_min = c_max-5
-        if c_to >= c_max:
-            commits = commits[c_min:c_max]
-        else:
-            commits = commits[c_from:c_to]
+        commits = commits[c_from:c_to]
         i = read_db_cell('menu_range', 'last') - read_db_cell('menu_range', 'min') + 1
         for commit in commits:
             i -= 1
@@ -32,8 +28,8 @@ def get_changes(c_from=0, c_to=5):
             commit_url = commit['html_url']
 
             output += f'''
-{i}) *Обновление* - {commit_date} от [{commit_author}](https://github.com/{commit_author}):
-*Изменения:* [{commit_message}]({commit_url})
+ {i}) *Обновление* - {commit_date} от [{commit_author}](https://github.com/{commit_author}):
+ *Изменения:* [{commit_message}]({commit_url})
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'''
-        output += f"\nСтраница {read_db_cell('menu_range', 'page')} из {int(c_max / 5)}"
+        output += f"\nСтраница {read_db_cell('menu_range', 'page')} из {(c_max + 5 - 1) // 5}"
     return output

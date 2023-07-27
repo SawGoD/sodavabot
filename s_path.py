@@ -91,7 +91,7 @@ menu_buttons = {
 
     'bot_about': 'bot_about(update, context)',
     'bot_settings': 'bot_settings(update, context)',
-    'bot_changes': 'bot_changes(update, context)',
+    'bot_changes_upd': 'bot_changes(update, context)',
 
     'multi': 'multi_menu(update, context)',
     'pc': 'pc_menu(update, context)',

@@ -142,7 +142,7 @@ def bot_changes(update, context):
     c_from_ = read_db_cell("menu_range", "min")
     c_to_ = read_db_cell("menu_range", "max")
 
-    keyboard = [[InlineKeyboardButton("🔄", callback_data='bot_changes')]]
+    keyboard = [[InlineKeyboardButton("🔄", callback_data='bot_changes_upd')]]
     if c_from_ <= 0:
         keyboard.append([InlineKeyboardButton("▶️", callback_data='bot_changes_right')])
     elif c_to_ >= read_db_cell("menu_range", "last"):
@@ -497,6 +497,13 @@ def take_screenshot(key, context, update):
         sound_alert("sound_screenshot.mp3")
 
 
+def update_menu_range(update, context, min_val, max_val, page_val):
+    write_db_cell("menu_range", min_val, "min")
+    write_db_cell("menu_range", max_val, "max")
+    write_db_cell("menu_range", page_val, "page")
+    bot_changes(update, context)
+
+
 def button(update, context):
     query = update.callback_query
     # user = update.effective_user
@@ -675,17 +682,14 @@ def button(update, context):
             status = 0 if read_db_cell("sound_status") == 1 else 1
             write_db_cell(f"sound_status", status)
             bot_about(update, context)
+        elif query.data == 'bot_changes':
+            update_menu_range(update, context, 0, 5, 1)
         elif query.data == 'bot_changes_right':
-            write_db_cell("menu_range", read_db_cell('menu_range', 'min') + 5, "min")
-            write_db_cell("menu_range", read_db_cell('menu_range', 'max') + 5, "max")
-            write_db_cell("menu_range", read_db_cell('menu_range', 'page') + 1, "page")
-            bot_changes(update, context)
+            update_menu_range(update, context, read_db_cell('menu_range', 'min') + 5,
+                              read_db_cell('menu_range', 'max') + 5, read_db_cell('menu_range', 'page') + 1)
         elif query.data == 'bot_changes_left':
-            write_db_cell("menu_range", read_db_cell('menu_range', 'min') - 5, "min")
-            write_db_cell("menu_range", read_db_cell('menu_range', 'max') - 5, "max")
-            write_db_cell("menu_range", read_db_cell('menu_range', 'page') - 1, "page")
-            bot_changes(update, context)
-
+            update_menu_range(update, context, read_db_cell('menu_range', 'min') - 5,
+                              read_db_cell('menu_range', 'max') - 5, read_db_cell('menu_range', 'page') - 1)
         elif query.data == 'mmenu':
             s_path.user_input(0, "none")
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
