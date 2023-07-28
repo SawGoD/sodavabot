@@ -2,6 +2,7 @@
 .env
 __pycache__
 test
+blocks/__pycache__
 data/s_connection.json
 data/s_main_db.json
 logs/error_py.txt
