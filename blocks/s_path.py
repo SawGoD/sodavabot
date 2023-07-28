@@ -1,45 +1,14 @@
 import time
-import datetime
-import threading
-import subprocess
-import s_file_gen
-import pyglet
-import s_send_logs
-# import concurrent.futures
-import winreg
-from s_handle_db import read_db_cell, write_db_cell, clear_db
-# 2023      Март, апрель, май, июнь, июль
-start_date = 1 + 1 + 1 + 1 + 1
-
-ver = str(f'{start_date}.26b')
-
-
-def clock():
-    now = datetime.datetime.now()
-    now_date = now.strftime("%d.%m.%y")
-    now_time = now.strftime('%H:%M:%S')
-    return now_date, now_time
-
+from blocks import s_file_gen
+from blocks.u_handle_db import read_db_cell
+from blocks.u_common_func import get_path
 
 s_file_gen.create_main_db()
 s_file_gen.crete_env()
 time.sleep(0.15)
 
 
-def get_path(path, file):
-    # Открываем ключ реестра, содержащий информацию о приложении Steam
-    key = winreg.OpenKey(
-        winreg.HKEY_CURRENT_USER,
-        fr"Software\{path}")
-    value, reg_type = winreg.QueryValueEx(key, file)
-    # Возвращаем найденный путь
-    return value
-
-
-def user_input(s, h_type):
-    write_db_cell("waiting_input", s)
-    write_db_cell("handle_type", h_type)
-
+SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H = "", "", "", "", ""
 
 if read_db_cell("pc") == 1:     # Рабочий ПК
     SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds Stereo)", \
@@ -94,7 +63,7 @@ menu_buttons = {
     'bot_changes_upd': 'bot_changes(update, context)',
 
     'multi': 'multi_menu(update, context)',
-    'pc': 'pc_menu(update, context)',
+    'power': 'power_menu(update, context)',
     'clipboard': 'clipboard_menu(update, context)',
     'screen': 'screen_menu(update, context)',
 
@@ -197,64 +166,4 @@ tabs_hotkeys = {
     'tab_return': ('ctrl', 'shift', 't')
 }
 
-
-def sound_alert(filename):
-    player = pyglet.media.Player()
-    source = pyglet.media.load(f"./resource/sounds/{filename}")
-    player.queue(source)
-    player.play()
-    time.sleep(2)
-
-
-def ver_greet():
-    daten, timen = clock()
-    for i in range(1):
-        print('')
-    print("==================")
-    print(f"Soda v{ver} started")
-    print("Дата:", daten)
-    print("Время:", timen)
-    print("==================")
-    print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
-    if read_db_cell("sound_status") == 1:
-        sound_alert("sound_greet.mp3")
-
-
 filler = '==================================\n'
-
-
-def get_volume():
-    if read_db_cell("output_device",) == "headphones_h":
-        keys = [SPEAK_HEAD_H[1], "head_h"]
-    elif read_db_cell("output_device") == "headphones_s":
-        keys = [SPEAK_HEAD_S[1], "head_s"]
-    elif read_db_cell("output_device") == "headphones_a":
-        keys = [SPEAK_HEAD_A[1], "head_a"]
-    elif read_db_cell("output_device") == "monitor_r":
-        keys = [SPEAK_MON_R[1], "mon_r"]
-    elif read_db_cell("output_device") == "monitor_l":
-        keys = [SPEAK_MON_L[1], "mon_l"]
-    else:
-        return
-
-    try:
-        vol = int(round(float(subprocess.check_output(f"{SVCL} {keys[0]}".split()).decode('utf-8').strip())))
-    except ValueError:
-        vol = 0
-    write_db_cell("volume", vol, keys[1])
-
-
-def speed_test():
-    s_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="запущен", effect=True)
-    while True:
-        p = subprocess.Popen(
-            fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
-            shell=True, text=True)
-        time.sleep(30)
-        result = p.communicate()[0]
-        with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
-            f.write(result)
-
-
-thread_speed_test = threading.Thread(target=speed_test)

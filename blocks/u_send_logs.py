@@ -1,22 +1,13 @@
 import telegram
 import os
-import datetime
 from dotenv import load_dotenv
-from s_handle_db import read_db_cell
+from blocks.s_path import filler
+from blocks.u_common_func import clock
+from blocks.u_handle_db import read_db_cell
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
 bot = telegram.Bot(token=TOKEN)
-
-
-filler = '==================================\n'
-
-
-def clock():
-    now = datetime.datetime.now()
-    now_date = now.strftime("%d.%m.%y")
-    now_time = now.strftime('%H:%M:%S')
-    return now_date, now_time
 
 
 def log_form_tg(update, context, cmd=None, effect=True, alert=None):
@@ -85,4 +76,3 @@ def log_form_cmd(update, context, cmd=None, action=None, effect=True):
             user = update.effective_user
             username = user.username
             print(f"Лог: @{username}/ID_{user_id} использует {cmd}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
-

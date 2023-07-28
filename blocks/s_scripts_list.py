@@ -2,7 +2,7 @@ import keyboard
 import time
 import pyautogui
 import threading
-from s_handle_db import read_db_cell, write_db_cell, clear_db
+from blocks.u_handle_db import read_db_cell
 
 sdb_path = "s_scripts_db.json"
 

@@ -6,7 +6,6 @@ echo pip install telegram >> packages.ps1
 echo pip install telegram.ext >> packages.ps1
 echo pip install pyautogui >> packages.ps1
 echo pip install subprocess >> packages.ps1
-echo pip install plyer >> packages.ps1
 echo pip install pyperclip >> packages.ps1
 echo pip install python-dotenv >> packages.ps1
 echo pip install pyglet >> packages.ps1
