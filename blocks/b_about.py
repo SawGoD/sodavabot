@@ -19,7 +19,7 @@ def get_changes(c_from=0, c_to=5):
         for commit in commits:
             i -= 1
             commit_message = commit['commit']['message']
-            commit_date = commit['commit']['author']['date'][:10]
+            commit_date = commit['commit']['author']['date'][:10].replace("-", ".")
             if commit['author'] is None:
                 commit_author = commit['commit']['author']['name']
             else:
@@ -28,8 +28,8 @@ def get_changes(c_from=0, c_to=5):
             commit_url = commit['html_url']
 
             output += f'''
- {i}) *Обновление* - {commit_date} от [{commit_author}](https://github.com/{commit_author}):
- *Изменения:* [{commit_message}]({commit_url})
+ {i}) *Обновление* - [{commit_date}]({commit_url}) от [{commit_author}](https://github.com/{commit_author}):
+ *Изменения:* `{commit_message}`
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'''
         output += f"\nСтраница {read_db_cell('menu_range', 'page')} из {(c_max + 5 - 1) // 5}"
         output = output.replace('\n\n', '\n')
