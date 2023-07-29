@@ -4,10 +4,11 @@ import subprocess
 import threading
 import pyautogui
 import time
+import json
 from blocks import u_send_logs
 from blocks import s_path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
-from blocks.u_common_func import user_input, sound_alert
+from blocks.u_common_func import user_input, sound_alert, clock, filler
 from blocks.u_handle_db import read_db_cell, write_db_cell
 from blocks.s_path import DEFPATH, SVCL, SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H
 from dotenv import load_dotenv
@@ -171,49 +172,40 @@ def multi_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🔂 *Мультимедиа*",
+    query.edit_message_text(text=f"{filler()}🔂 *Мультимедиа*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def vpn_menu(update, context):
-    # инициализируем переменные для первого запуска кода
-    last_modified = 0
-    last_sp_avg = 0
-
-    # проверяем, изменился ли файл speed.txt с момента последнего запуска кода
-    file_path = fr'{s_path.DEFPATH}\data\{s_con_path}'
-    if os.path.exists(file_path):
-        modified_time = os.path.getmtime(file_path)
-        if modified_time != last_modified:
-            # файл изменился, нужно пересчитать значение скорости
-            download = ((read_db_cell("download", 'bytes', filename=s_con_path) * 8) /
-                        (read_db_cell("download", 'elapsed', filename=s_con_path) * 1000))
-            upload = ((read_db_cell("upload", 'bytes', filename=s_con_path) * 8) /
-                      (read_db_cell("upload", 'elapsed', filename=s_con_path) * 1000))
-            sp_avg = round((download + upload) / 2, 2)
-            in_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
-            ex_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
-            last_modified = modified_time
-        else:
-            # файл не изменился, возвращаем предыдущее значение скорости
-            sp_avg = last_sp_avg
-    else:
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    # сохраняем текущее значение скорости в переменной для следующей проверки
-    last_sp_avg = sp_avg
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    url = read_db_cell("result", 'url', filename=s_con_path)
-    ping = round(read_db_cell("ping", 'latency', filename=s_con_path), 2)
-    int_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
-    ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
+    daten, timen = clock()
+    try:
+        download = ((read_db_cell("download", 'bytes', filename=s_con_path) * 8) /
+                    (read_db_cell("download", 'elapsed', filename=s_con_path) * 1000))
+        upload = ((read_db_cell("upload", 'bytes', filename=s_con_path) * 8) /
+                  (read_db_cell("upload", 'elapsed', filename=s_con_path) * 1000))
+        sp_avg = round((download + upload) / 2, 2)
+
+        url = read_db_cell("result", 'url', filename=s_con_path)
+        ping = round(read_db_cell("ping", 'latency', filename=s_con_path), 2)
+        int_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
+        ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
+        upd_time = read_db_cell("timestamp", filename=s_con_path)[11:-1]
+        fix_time = str(int(upd_time[:-6]) + 3) + upd_time[2:]
+    except json.decoder.JSONDecodeError:
+        # Если возникла ошибка при чтении файла, считаем, что значения не были измерены
+        ping, int_ip, ext_ip = "0", "0.0.0.0", "0.0.0.0"
+        sp_avg = "0.00"
+        url, fix_time = "", timen
+
     about = f'''[Данные сети]({url}):
-        _Задержка:_ `{ping}ms`
-        _Внутренний IP:_ `{int_ip}`
-        _Внешний IP:_ `{ext_ip}`
-        '''
+            _Задержка:_ `{ping}ms`
+            _Внутренний IP:_ `{int_ip}`
+            _Внешний IP:_ `{ext_ip}`
+
+    _Обновлено:_ {fix_time}'''
     keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if read_db_cell('vpn_status') == 'DE' else '⚫'}",
                                       callback_data='vpn_1'),
                  InlineKeyboardButton(f"🇹🇷 TR {'🟢' if read_db_cell('vpn_status') == 'TR' else '⚫'}",
@@ -227,7 +219,7 @@ def vpn_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🔒 *VPN* \n{about}",
+    query.edit_message_text(text=f"{filler()}🔒 *VPN* \n{about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 

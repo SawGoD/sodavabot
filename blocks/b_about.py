@@ -2,8 +2,7 @@ import os
 import requests
 import telegram
 from blocks.u_handle_db import read_db_cell, write_db_cell
-from blocks.u_common_func import ver
-from blocks.s_path import filler
+from blocks.u_common_func import ver, filler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -58,7 +57,7 @@ def bot_about(update, context):
                 [InlineKeyboardButton("⚙️ Настройки", callback_data='bot_settings')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}🤖 *О боте*\n {about}",
+    query.edit_message_text(text=f"{filler()}🤖 *О боте*\n {about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -73,7 +72,7 @@ def bot_settings(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}⚙️ *Настройки*",
+    query.edit_message_text(text=f"{filler()}⚙️ *Настройки*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -96,7 +95,7 @@ def bot_changes(update, context):
     keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}🆕️ *Изменения*\n {get_changes(c_from_, c_to_)}",
+    query.edit_message_text(text=f"{filler()}🆕️ *Изменения*\n{get_changes(c_from_, c_to_)}",
                             reply_markup=reply_markup,
                             disable_web_page_preview=True,
                             parse_mode=telegram.ParseMode.MARKDOWN)

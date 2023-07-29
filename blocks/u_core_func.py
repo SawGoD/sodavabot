@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from blocks import u_send_logs
 from blocks import s_path
 from blocks.b_computer import computer_menu, multi_menu, vpn_menu, power_menu, screen_menu, clipboard_menu, \
-    take_screenshot
+    take_screenshot, set_output_device
 from blocks.b_app import app_menu, app_ui, tabs_menu, scripts_menu, scr_eft_menu, games_menu, sdai_links_menu
 from blocks.b_about import bot_about, bot_changes, bot_settings, update_menu_range
 from blocks.u_common_func import sound_alert, user_input

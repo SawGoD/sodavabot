@@ -51,9 +51,10 @@ def main():
                 except Exception as e:
                     u_send_logs.log_form_cmd(update=None, context=None, cmd="Ошибка", effect=f"'{e}'",
                                              action="Ожидание перезапуска")
-                    time.sleep(5)
+                    time.sleep(99)
         except Exception as e:
             sys.stderr.write(str(e))
+            time.sleep(99)
 
 
 if __name__ == '__main__':

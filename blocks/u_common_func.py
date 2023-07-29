@@ -1,5 +1,6 @@
 import winreg
 import datetime
+import random
 import time
 import pyglet
 from blocks.u_handle_db import read_db_cell, write_db_cell
@@ -52,3 +53,12 @@ def user_input(s, h_type):
     write_db_cell("waiting_input", s)
     write_db_cell("handle_type", h_type)
 
+
+# Функция для устранения ошибки об отсутствии изменений
+def filler():
+    result = ''
+    for i in range(random.randint(17, 17)):
+        result += random.choice('----------------------------------==================================')
+        result += random.choice('==================================----------------------------------')
+    result = f"{result}\n"
+    return result
