@@ -10,9 +10,9 @@ import datetime
 from blocks import u_send_logs
 from blocks import s_path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
-from blocks.u_common_func import user_input, sound_alert, clock, filler
+from blocks.u_common_func import user_input, sound_alert, clock, mod_fix
 from blocks.u_handle_db import read_db_cell, write_db_cell
-from blocks.s_path import DEFPATH, SVCL, SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H
+from blocks.s_path import DEFPATH, SVCL, SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H, filler
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -135,9 +135,9 @@ def computer_menu(update, context):
                 [InlineKeyboardButton("⚠ Питание", callback_data='power')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}🖥 *Компьютер*",
+    query.edit_message_text(text=f"{filler}🖥 *Компьютер*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def multi_menu(update, context):
@@ -183,9 +183,9 @@ def multi_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler()}🔂 *Мультимедиа*",
+    query.edit_message_text(text=f"{filler}🔂 *Мультимедиа*{mod_fix()}",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def vpn_menu(update, context):
@@ -232,7 +232,7 @@ def vpn_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=s_path.filler.replace('=', r'\=')+f"🔒 *VPN*\n{about}",
+    query.edit_message_text(text=f"{filler}🔒 *VPN*\n{about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
@@ -251,9 +251,9 @@ def power_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}⚠ *Питание*",
+    query.edit_message_text(text=f"{filler}⚠ *Питание*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def screen_menu(update, context):
@@ -267,9 +267,9 @@ def screen_menu(update, context):
         [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
          InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}📷 *Экран*",
+    query.edit_message_text(text=f"{filler}📷 *Экран*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def clipboard_menu(update, context):
@@ -281,9 +281,9 @@ def clipboard_menu(update, context):
         [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
          InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{s_path.filler}📋 *Буфер обмена*",
+    query.edit_message_text(text=f"{filler}📋 *Буфер обмена*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 thread_speed_test = threading.Thread(target=speed_test)

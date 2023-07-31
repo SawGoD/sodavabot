@@ -48,7 +48,7 @@ def log_form_tg(update, context, cmd=None, effect=True, alert=None):
             pass
         else:
             bot.send_message(chat_id=os.getenv('LOG_OUTPUT'),
-                             text=log_message, parse_mode=telegram.ParseMode.MARKDOWN)
+                             text=log_message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
     else:
         pass
 
