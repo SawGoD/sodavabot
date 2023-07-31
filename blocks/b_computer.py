@@ -5,6 +5,8 @@ import threading
 import pyautogui
 import time
 import json
+import socket
+import datetime
 from blocks import u_send_logs
 from blocks import s_path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
@@ -113,6 +115,15 @@ def speed_test():
             f.write(result)
 
 
+def time_to_upd(upd_time, cur_time):
+    upd_time_obj = datetime.datetime.strptime(upd_time, "%H:%M:%S")
+    cur_time_obj = datetime.datetime.strptime(cur_time, "%H:%M:%S")
+    time_diff = (upd_time_obj - cur_time_obj).total_seconds()
+    if time_diff < 0:
+        time_diff += 30
+    return int(time_diff)
+
+
 def computer_menu(update, context):
     user_input(0, "none")
     query = update.callback_query
@@ -194,18 +205,20 @@ def vpn_menu(update, context):
         ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
         upd_time = read_db_cell("timestamp", filename=s_con_path)[11:-1]
         fix_time = str(int(upd_time[:-6]) + 3) + upd_time[2:]
-    except json.decoder.JSONDecodeError:
-        # Если возникла ошибка при чтении файла, считаем, что значения не были измерены
-        ping, int_ip, ext_ip = "0", "0.0.0.0", "0.0.0.0"
+        left_time = str(time_to_upd(str(fix_time), str(timen))).replace('-', '')
+    except (json.decoder.JSONDecodeError, KeyError, FileNotFoundError) as err:
+        int_ip = socket.gethostbyname(socket.gethostname())
+        ping, ext_ip = "0", "0.0.0.0"
         sp_avg = "0.00"
-        url, fix_time = "", timen
+        url, fix_time, left_time = "", timen, "0"
 
-    about = f'''[Данные сети]({url}):
+    about = fr'''[Данные сети]({url}):
             _Задержка:_ `{ping}ms`
             _Внутренний IP:_ `{int_ip}`
             _Внешний IP:_ `{ext_ip}`
-
-    _Обновлено:_ {fix_time}'''
+\- \- \- \- \- \- \- \- \- \- \- \- \- \- \- \-
+    _Обновлено:_ {fix_time}
+    _Осталось:_ {left_time}сек'''
     keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if read_db_cell('vpn_status') == 'DE' else '⚫'}",
                                       callback_data='vpn_1'),
                  InlineKeyboardButton(f"🇹🇷 TR {'🟢' if read_db_cell('vpn_status') == 'TR' else '⚫'}",
@@ -219,9 +232,9 @@ def vpn_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler()}🔒 *VPN* \n{about}",
+    query.edit_message_text(text=s_path.filler.replace('=', r'\=')+f"🔒 *VPN*\n{about}",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def power_menu(update, context):

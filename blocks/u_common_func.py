@@ -7,7 +7,7 @@ from blocks.u_handle_db import read_db_cell, write_db_cell
 
 # 2023      Март, апрель, май, июнь, июль
 start_date = 1 + 1 + 1 + 1 + 1
-ver = str(f'{start_date}.29b')
+ver = str(f'{start_date}.31b')
 
 
 def sound_alert(filename):
