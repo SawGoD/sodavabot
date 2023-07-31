@@ -7,7 +7,6 @@ from blocks.s_scripts_list import sdb_path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-
 def app_menu(update, context):
     user_input(0, "none")
     query = update.callback_query
@@ -21,7 +20,7 @@ def app_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📟 *Приложения*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def app_ui(update, context):
@@ -42,7 +41,7 @@ def app_ui(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}{app_ui_name}",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def tabs_menu(update, context):
@@ -64,7 +63,7 @@ def tabs_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📑 *Вкладки*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def games_menu(update, context):
@@ -78,7 +77,7 @@ def games_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}📑 *Игры*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def sdai_links_menu(update, context):
@@ -92,7 +91,7 @@ def sdai_links_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🔗 *Ссылки*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def scripts_menu(update, context):
@@ -105,7 +104,7 @@ def scripts_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🚀 *Скрипты*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def scr_eft_menu(update, context):
@@ -131,4 +130,4 @@ def scr_eft_menu(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{s_path.filler}🤕 *Escape From Tarkov*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)

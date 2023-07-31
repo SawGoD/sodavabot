@@ -1,6 +1,5 @@
 import re
 import os
-import sys
 import pyperclip
 import requests
 import subprocess
@@ -13,7 +12,7 @@ from blocks.b_computer import computer_menu, multi_menu, vpn_menu, power_menu, s
     take_screenshot, set_output_device
 from blocks.b_app import app_menu, app_ui, tabs_menu, scripts_menu, scr_eft_menu, games_menu, sdai_links_menu
 from blocks.b_about import bot_about, bot_changes, bot_settings, update_menu_range
-from blocks.u_common_func import sound_alert, user_input
+from blocks.u_common_func import sound_alert, user_input, restart_bot
 from blocks.s_scripts_list import sdb_path
 from blocks.u_handle_db import read_db_cell, write_db_cell
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
@@ -238,15 +237,13 @@ def button(update, context):
             write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
             query.answer(text='Принудительный перезапуск')
             bot_about(update, context)
-            python = sys.executable
-            os.execv(python, [python, fr".\soda_va_bot.py"])
+            restart_bot()
         elif query.data == 'sel_pc_2':
             write_db_cell("pc", 2)
             write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
             query.answer(text='Принудительный перезапуск')
             bot_about(update, context)
-            python = sys.executable
-            os.execv(python, [python, fr".\soda_va_bot.py"])
+            restart_bot()
         elif query.data == 'logger':
             status = 0 if read_db_cell("log_status") == 1 else 1
             write_db_cell(f"log_status", status)
@@ -272,4 +269,4 @@ def button(update, context):
             context.bot.edit_message_text(chat_id=user_id, message_id=query.message.message_id,
                                           text=f'{s_path.filler}🔝 *Меню*',
                                           reply_markup=reply_markup,
-                                          parse_mode=telegram.ParseMode.MARKDOWN)
+                                          parse_mode=telegram.ParseMode.MARKDOWN_V2)

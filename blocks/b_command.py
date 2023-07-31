@@ -1,9 +1,8 @@
 import os
-import sys
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from blocks import u_send_logs
-from blocks.u_common_func import clock
+from blocks.u_common_func import clock, restart_bot
 from blocks.s_path import filler
 
 
@@ -26,7 +25,7 @@ def start(update, context):
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_message(chat_id=user_id, text=f'{filler}🔝 *Меню*',
                                  reply_markup=reply_markup,
-                                 parse_mode=telegram.ParseMode.MARKDOWN)
+                                 parse_mode=telegram.ParseMode.MARKDOWN_V2)
         chat_id = update.message.chat_id
         message_id = update.message.message_id
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -47,5 +46,4 @@ def restart(update, context):
         chat_id = update.message.chat_id
         message_id = update.message.message_id
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-        python = sys.executable
-        os.execv(python, [python, fr".\soda_va_bot.py"])
+        restart_bot()

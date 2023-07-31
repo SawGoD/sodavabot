@@ -2,7 +2,8 @@ import os
 import requests
 import telegram
 from blocks.u_handle_db import read_db_cell, write_db_cell
-from blocks.u_common_func import ver, filler
+from blocks.u_common_func import ver, mod_fix
+from blocks.s_path import filler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -19,7 +20,7 @@ def get_changes(c_from=0, c_to=5):
         for commit in commits:
             i -= 1
             commit_message = commit['commit']['message']
-            commit_date = commit['commit']['author']['date'][:10].replace("-", ".")
+            commit_date = commit['commit']['author']['date'][:10].replace("-", r"\.")
             if commit['author'] is None:
                 commit_author = commit['commit']['author']['name']
             else:
@@ -27,12 +28,12 @@ def get_changes(c_from=0, c_to=5):
                 # commit_author = "2121"
             commit_url = commit['html_url']
 
-            output += f'''
- {i}) *Обновление* - [{commit_date}]({commit_url}) от [{commit_author}](https://github.com/{commit_author}):
+            output += fr'''
+ {i}\) *Обновление* - [{commit_date}]({commit_url}) от [{commit_author}](https://github.com/{commit_author}):
  *Изменения:* `{commit_message}`
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'''
         output += f"\nСтраница {read_db_cell('menu_range', 'page')} из {(c_max + 5 - 1) // 5}"
-        output = output.replace('\n\n', '\n')
+        output = output.replace('\n\n', '\n').replace('-', r'\-')
     return output
 
 
@@ -46,7 +47,7 @@ def update_menu_range(update, context, min_val, max_val, page_val):
 def bot_about(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    about = f'''"SODA VA BOT"
+    about = fr'''"SODA VA BOT"
         *Версия бота:* _{ver}_
         *Сейчас выбран:* _{read_db_cell("cur_pc")}_
 
@@ -57,9 +58,9 @@ def bot_about(update, context):
                 [InlineKeyboardButton("⚙️ Настройки", callback_data='bot_settings')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler()}🤖 *О боте*\n {about}",
+    query.edit_message_text(text=f"{filler}🤖 *О боте*\n"+about.replace('.', r'\.'),
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def bot_settings(update, context):
@@ -72,9 +73,9 @@ def bot_settings(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler()}⚙️ *Настройки*",
+    query.edit_message_text(text=f"{filler}⚙️ *Настройки*",
                             reply_markup=reply_markup,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 def bot_changes(update, context):
@@ -95,7 +96,7 @@ def bot_changes(update, context):
     keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler()}🆕️ *Изменения*\n{get_changes(c_from_, c_to_)}",
+    query.edit_message_text(text=f"{filler}🆕️ *Изменения*{mod_fix()}\n{get_changes(c_from_, c_to_)}",
                             reply_markup=reply_markup,
                             disable_web_page_preview=True,
-                            parse_mode=telegram.ParseMode.MARKDOWN)
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)

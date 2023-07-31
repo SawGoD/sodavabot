@@ -3,6 +3,8 @@ import datetime
 import random
 import time
 import pyglet
+import sys
+import os
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
 # 2023      Март, апрель, май, июнь, июль
@@ -16,6 +18,11 @@ def sound_alert(filename):
     player.queue(source)
     player.play()
     time.sleep(2)
+
+
+def restart_bot():
+    python = sys.executable
+    os.execv(python, [python, fr".\soda_va_bot.py"])
 
 
 def ver_greet():
@@ -55,10 +62,9 @@ def user_input(s, h_type):
 
 
 # Функция для устранения ошибки об отсутствии изменений
-def filler():
+def mod_fix():
     result = ''
-    for i in range(random.randint(17, 17)):
-        result += random.choice('----------------------------------==================================')
-        result += random.choice('==================================----------------------------------')
-    result = f"{result}\n"
+    for i in range(random.randint(5, 5)):
+        result += random.choice('ㅤㅤㅤㅤㅤ     ')
+        result += random.choice('     ㅤㅤㅤㅤㅤ')
     return result
