@@ -7,8 +7,8 @@ from blocks.s_path import filler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-def get_changes(c_from=0, c_to=5):
-    url = f"https://api.github.com/repos/SawGoD/sodavabot/commits?per_page=99"
+def get_changes(repo, c_from=0, c_to=5):
+    url = f"https://api.github.com/repos/SawGoD/{repo}/commits?per_page=99"
     response = requests.get(url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
     output = "Последние изменения:\n\n"
     if response.status_code == 200:
@@ -82,6 +82,7 @@ def bot_changes(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
 
+    repo_ = read_db_cell("menu_range", "repo")
     c_from_ = read_db_cell("menu_range", "min")
     c_to_ = read_db_cell("menu_range", "max")
 
@@ -96,7 +97,7 @@ def bot_changes(update, context):
     keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}🆕️ *Изменения*{mod_fix()}\n{get_changes(c_from_, c_to_)}",
+    query.edit_message_text(text=f"{filler}🆕️ *Изменения*{mod_fix()}\n{get_changes(repo_, c_from_, c_to_)}",
                             reply_markup=reply_markup,
                             disable_web_page_preview=True,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)

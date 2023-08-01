@@ -20,8 +20,7 @@ def log_form_tg(update, context, cmd=None, effect=True, alert=None):
             query_log = str(query.data)
             if query.data in alert:
                 username_ment = "FAKE_SGD"
-                username_ment = username_ment.replace('_', r'\_').replace('*', r'\*')
-                username_ment = f"@{username_ment}!"
+                username_ment = f"@{username_ment}!".replace('_', r'\_').replace('*', r'\*').replace('!', r'\!')
             else:
                 username_ment = ""
         else:
