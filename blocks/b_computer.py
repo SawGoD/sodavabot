@@ -204,9 +204,12 @@ def vpn_menu(update, context):
         int_ip = read_db_cell("interface", 'internalIp', filename=s_con_path)
         ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
         upd_time = read_db_cell("timestamp", filename=s_con_path)[11:-1]
-        fix_time = str(int(upd_time[:-6]) + 3) + upd_time[2:]
+        fix_time = str(int(upd_time[:-6]) + 3)
+        if int(fix_time) >= 25:
+            fix_time = timen[:-6]
+        fix_time = fix_time + upd_time[2:]
         left_time = str(time_to_upd(str(fix_time), str(timen))).replace('-', '')
-    except (json.decoder.JSONDecodeError, KeyError, FileNotFoundError) as err:
+    except (json.decoder.JSONDecodeError, KeyError, FileNotFoundError, ValueError) as err:
         int_ip = socket.gethostbyname(socket.gethostname())
         ping, ext_ip = "0", "0.0.0.0"
         sp_avg = "0.00"
