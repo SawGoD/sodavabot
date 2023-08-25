@@ -1,7 +1,9 @@
-import keyboard
-import time
-import pyautogui
 import threading
+import time
+
+import keyboard
+import pyautogui
+
 from blocks.u_handle_db import read_db_cell
 
 sdb_path = "s_scripts_db.json"

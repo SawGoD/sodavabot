@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 
 def create_main_db():

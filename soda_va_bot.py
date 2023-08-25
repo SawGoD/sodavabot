@@ -1,15 +1,19 @@
 import os
 import sys
 import time
-from blocks import u_send_logs
+
 from dotenv import load_dotenv
-from blocks.s_scripts_list import thread_script_eft_1, thread_script_eft_2, thread_script_eft_3
-from blocks.b_computer import thread_speed_test
-from blocks.b_command import start, restart
-from blocks.u_common_func import ver_greet, restart_bot
-from blocks.u_core_func import handle_text, button
 from telegram.error import NetworkError, Unauthorized
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext import (CallbackQueryHandler, CommandHandler, Filters,
+                          MessageHandler, Updater)
+
+from blocks import u_send_logs
+from blocks.b_command import restart, start
+from blocks.b_computer import thread_speed_test
+from blocks.s_scripts_list import (thread_script_eft_1, thread_script_eft_2,
+                                   thread_script_eft_3)
+from blocks.u_common_func import restart_bot, ver_greet
+from blocks.u_core_func import button, handle_text
 
 thread_script_eft_1.start()
 thread_script_eft_2.start()
@@ -30,7 +34,8 @@ def main():
             dp.add_handler(CommandHandler('start', start))
             dp.add_handler(CommandHandler('restart', restart))
             dp.add_handler(CallbackQueryHandler(button))
-            dp.add_handler(MessageHandler(Filters.text, handle_text, run_async=True))
+            dp.add_handler(MessageHandler(
+                Filters.text, handle_text, run_async=True))
             updater.start_polling()
             updater.idle()
             pass

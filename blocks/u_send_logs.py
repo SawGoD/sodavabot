@@ -1,6 +1,8 @@
-import telegram
 import os
+
+import telegram
 from dotenv import load_dotenv
+
 from blocks.s_path import filler
 from blocks.u_common_func import clock
 from blocks.u_handle_db import read_db_cell
@@ -20,7 +22,8 @@ def log_form_tg(update, context, cmd=None, effect=True, alert=None):
             query_log = str(query.data)
             if query.data in alert:
                 username_ment = "FAKE_SGD"
-                username_ment = f"@{username_ment}!".replace('_', r'\_').replace('*', r'\*').replace('!', r'\!')
+                username_ment = f"@{username_ment}!".replace(
+                    '_', r'\_').replace('*', r'\*').replace('!', r'\!')
             else:
                 username_ment = ""
         else:
@@ -69,9 +72,11 @@ def log_form_cmd(update, context, cmd=None, action=None, effect=True):
             user = update.effective_user
             username = user.username
             query_log = str(query.data)
-            print(f"Лог: @{username}/ID_{user_id} использует {query_log}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
+            print(
+                f"Лог: @{username}/ID_{user_id} использует {query_log}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
         else:
             user_id = str(update.message.chat_id)
             user = update.effective_user
             username = user.username
-            print(f"Лог: @{username}/ID_{user_id} использует {cmd}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")
+            print(
+                f"Лог: @{username}/ID_{user_id} использует {cmd}|Доступ: {'Есть' if effect else 'Нет'}|{timen}")

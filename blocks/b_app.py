@@ -1,10 +1,10 @@
-
 import telegram
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from blocks import s_path
+from blocks.s_scripts_list import sdb_path
 from blocks.u_common_func import user_input
 from blocks.u_handle_db import read_db_cell
-from blocks.s_scripts_list import sdb_path
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def app_menu(update, context):
@@ -14,7 +14,8 @@ def app_menu(update, context):
     keyboard = [[InlineKeyboardButton("🌐 Opera", callback_data='opera')],
                 [InlineKeyboardButton("🕹️ Steam", callback_data='steam')]]
     if read_db_cell("pc", None) == 2:
-        keyboard.append([InlineKeyboardButton("🎨️ Stable Diffusion", callback_data='sdai')])
+        keyboard.append([InlineKeyboardButton(
+            "🎨️ Stable Diffusion", callback_data='sdai')])
     keyboard += [[InlineKeyboardButton("🚀 Скрипты", callback_data='script')],
                  [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -29,7 +30,8 @@ def app_ui(update, context):
     app_on, app_off, app_sub, app_sub_text, app_ui_name = [0, 0, 0, 0, 0]
     app_name = read_db_cell("app_name", None)
     if app_name in s_path.app_data:
-        app_on, app_off, app_sub, app_sub_text, app_ui_name = s_path.app_data[app_name].values()
+        app_on, app_off, app_sub, app_sub_text, app_ui_name = s_path.app_data[app_name].values(
+        )
 
     keyboard = [[InlineKeyboardButton("✔ Запустить", callback_data=f'{app_on}')],
 
@@ -53,7 +55,8 @@ def tabs_menu(update, context):
                 # [InlineKeyboardButton("↩️", callback_data='tab_prev'),
                 #  InlineKeyboardButton("↪️", callback_data='tab_next')],
 
-                [InlineKeyboardButton("👁‍🗨 Инкогнито", callback_data='opi_on')],
+                [InlineKeyboardButton(
+                    "👁‍🗨 Инкогнито", callback_data='opi_on')],
 
                 [InlineKeyboardButton("❌ Закрыть", callback_data='tab_off'),
                  InlineKeyboardButton("🔖 Вернуть", callback_data='tab_return')],
@@ -84,7 +87,8 @@ def sdai_links_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🔗 Local", url=f'{read_db_cell("sd_link_local", None)}')],
-                [InlineKeyboardButton("🔗 Share", url=f'{read_db_cell("sd_link_share", None)}')],
+                [InlineKeyboardButton(
+                    "🔗 Share", url=f'{read_db_cell("sd_link_share", None)}')],
 
                 [InlineKeyboardButton("🔙 Назад", callback_data='sdai'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]

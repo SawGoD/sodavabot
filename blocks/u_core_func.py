@@ -1,22 +1,25 @@
-import re
 import os
+import re
+import subprocess
+
+import pyautogui
 import pyperclip
 import requests
-import subprocess
-import pyautogui
 import telegram
 from dotenv import load_dotenv
-from blocks import u_send_logs
-from blocks import s_path
-from blocks.b_computer import computer_menu, multi_menu, vpn_menu, power_menu, screen_menu, clipboard_menu, \
-    take_screenshot, set_output_device
-from blocks.b_app import app_menu, app_ui, tabs_menu, scripts_menu, scr_eft_menu, games_menu, sdai_links_menu
-from blocks.b_about import bot_about, bot_changes, bot_settings, update_menu_range
-from blocks.u_common_func import sound_alert, user_input, restart_bot
-from blocks.s_scripts_list import sdb_path
-from blocks.u_handle_db import read_db_cell, write_db_cell
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
+from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
+from blocks import s_path, u_send_logs
+from blocks.b_about import (bot_about, bot_changes, bot_settings,
+                            update_menu_range)
+from blocks.b_app import (app_menu, app_ui, games_menu, scr_eft_menu,
+                          scripts_menu, sdai_links_menu, tabs_menu)
+from blocks.b_computer import (clipboard_menu, computer_menu, explorer_fix, multi_menu,
+                               power_menu, screen_menu, set_output_device,
+                               take_screenshot, vpn_menu, additional_pc_menu)
+from blocks.s_scripts_list import sdb_path
+from blocks.u_common_func import restart_bot, sound_alert, user_input
+from blocks.u_handle_db import read_db_cell, write_db_cell
 
 user_data = {}
 load_dotenv()
@@ -32,14 +35,19 @@ def handle_text(update, context):
     user_id = str(update.message.chat_id)
     if user_id not in os.getenv('ALLOWED_USERS'):
         context.bot.send_message(chat_id=user_id, text="У Вас нет доступа")
-        u_send_logs.log_form_cmd(update, context, effect=False, cmd="handle_text")
-        u_send_logs.log_form_tg(update, context, effect=False, cmd="handle_text")
+        u_send_logs.log_form_cmd(
+            update, context, effect=False, cmd="handle_text")
+        u_send_logs.log_form_tg(
+            update, context, effect=False, cmd="handle_text")
     else:
-        u_send_logs.log_form_cmd(update, context, effect=True, cmd="handle_text")
-        u_send_logs.log_form_tg(update, context, effect=True, cmd="handle_text")
+        u_send_logs.log_form_cmd(
+            update, context, effect=True, cmd="handle_text")
+        u_send_logs.log_form_tg(
+            update, context, effect=True, cmd="handle_text")
         if read_db_cell("waiting_input") == 1:
             if read_db_cell("handle_type") == 'links':
-                urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
+                urls = re.findall(
+                    r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
                 message_text = urls[0]
                 os.system(f'{s_path.BROWSER} "{message_text}"')
             elif read_db_cell("handle_type") == 'clipboard':
@@ -81,12 +89,14 @@ def button(update, context):
     # user = update.effective_user
     user_id = str(query.message.chat_id)
     if user_id not in os.getenv('ALLOWED_USERS'):
-        u_send_logs.log_form_tg(update, context, effect=False, alert=os.getenv('LOG_ALERT'))
+        u_send_logs.log_form_tg(
+            update, context, effect=False, alert=os.getenv('LOG_ALERT'))
         u_send_logs.log_form_cmd(update, context, effect=False)
         query.answer(text='У Вас нет доступа')
         pass
     else:
-        u_send_logs.log_form_tg(update, context, effect=True, alert=os.getenv('LOG_ALERT'))
+        u_send_logs.log_form_tg(
+            update, context, effect=True, alert=os.getenv('LOG_ALERT'))
         u_send_logs.log_form_cmd(update, context, effect=True)
         if query.data in s_path.menu_buttons:
             eval(s_path.menu_buttons[query.data])
@@ -94,6 +104,8 @@ def button(update, context):
             eval(s_path.multi_act[query.data])
         elif query.data in s_path.apps_os_act:
             os.system(s_path.apps_os_act[query.data])
+        elif query.data in s_path.dict_short_cmds:
+            eval(s_path.dict_short_cmds[query.data])
         elif query.data in s_path.tabs_hotkeys:
             pyautogui.hotkey(*s_path.tabs_hotkeys[query.data])
         elif query.data in s_path.scr_keys:
@@ -159,16 +171,22 @@ def button(update, context):
             query.edit_message_reply_markup(reply_markup=current_markup)
         elif query.data.startswith(('scrn_del:', 'text_del:')):
             if query.data.startswith('scrn_del:'):
-                file_name = query.data.split(':')[1]  # получаем название файла скриншота из callback_data
-                message_id = context.user_data.get(file_name)  # получаем ID сообщения из UserDict
+                # получаем название файла скриншота из callback_data
+                file_name = query.data.split(':')[1]
+                # получаем ID сообщения из UserDict
+                message_id = context.user_data.get(file_name)
                 if message_id:
-                    context.bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
-                    del context.user_data[file_name]  # удаляем запись из UserDict
-                os.remove(os.path.join(s_path.SHAREX, file_name))  # удаляем файл скриншота
+                    context.bot.delete_message(
+                        chat_id=update.effective_chat.id, message_id=message_id)
+                    # удаляем запись из UserDict
+                    del context.user_data[file_name]
+                # удаляем файл скриншота
+                os.remove(os.path.join(s_path.SHAREX, file_name))
 
             elif query.data.startswith('text_del:'):
                 message_id = int(query.data.split(":")[1])
-                bot.delete_message(chat_id=update.effective_chat.id, message_id=message_id)
+                bot.delete_message(
+                    chat_id=update.effective_chat.id, message_id=message_id)
 
         elif query.data == 'get_copy':
             clipboard_content = pyperclip.paste()
@@ -176,7 +194,8 @@ def button(update, context):
             # message_text += "Нажмите кнопку \"Удалить\", чтобы удалить это сообщение"
             message = bot.send_message(chat_id=update.effective_chat.id, text=message_text,
                                        parse_mode=telegram.ParseMode.MARKDOWN)
-            keyboard = [[InlineKeyboardButton("Удалить", callback_data=f"text_del:{message.message_id}")]]
+            keyboard = [[InlineKeyboardButton(
+                "Удалить", callback_data=f"text_del:{message.message_id}")]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             bot.edit_message_reply_markup(
                 chat_id=update.effective_chat.id,
@@ -191,7 +210,6 @@ def button(update, context):
             os.system(f'{s_path.VPN_OFF}')
             write_db_cell("vpn_status", "off")
             vpn_menu(update, context)
-
         elif query.data in ['opera', 'steam', 'sdai']:
             write_db_cell("app_name", query.data, None)
             app_ui(update, context)
@@ -203,7 +221,8 @@ def button(update, context):
             print("off - ne rabotaer")
 
         elif query.data == 'scr_eft_1':
-            status = 0 if read_db_cell("script_eft_1", None, filename=sdb_path) == 1 else 1
+            status = 0 if read_db_cell(
+                "script_eft_1", None, filename=sdb_path) == 1 else 1
             write_db_cell(f"script_eft_1", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'eft_1_down':
@@ -220,11 +239,13 @@ def button(update, context):
             write_db_cell("seft_1_set", y, "value", filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_2':
-            status = 0 if read_db_cell("script_eft_2", None, filename=sdb_path) == 1 else 1
+            status = 0 if read_db_cell(
+                "script_eft_2", None, filename=sdb_path) == 1 else 1
             write_db_cell(f"script_eft_2", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_3':
-            status = 0 if read_db_cell("script_eft_3", None, filename=sdb_path) == 1 else 1
+            status = 0 if read_db_cell(
+                "script_eft_3", None, filename=sdb_path) == 1 else 1
             write_db_cell(f"script_eft_3", status, None, filename=sdb_path)
             scr_eft_menu(update, context)
         elif query.data == 'scr_eft_off':
@@ -263,7 +284,8 @@ def button(update, context):
         elif query.data == 'mmenu':
             user_input(0, "none")
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
-                        [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
+                        [InlineKeyboardButton(
+                            "📟 Приложения", callback_data='apps')],
                         [InlineKeyboardButton("🤖 О боте", callback_data='bot_about')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             context.bot.edit_message_text(chat_id=user_id, message_id=query.message.message_id,

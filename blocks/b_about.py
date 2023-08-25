@@ -1,26 +1,31 @@
 import os
+
 import requests
 import telegram
-from blocks.u_handle_db import read_db_cell, write_db_cell
-from blocks.u_common_func import ver, mod_fix
-from blocks.s_path import filler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from blocks.s_path import filler
+from blocks.u_common_func import mod_fix, ver
+from blocks.u_handle_db import read_db_cell, write_db_cell
 
 
 def get_changes(repo, c_from=0, c_to=5):
     url = f"https://api.github.com/repos/SawGoD/{repo}/commits?per_page=99"
-    response = requests.get(url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
+    response = requests.get(
+        url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
     output = "Последние изменения:\n\n"
     if response.status_code == 200:
         commits = response.json()
         c_max = int(len(commits))
         write_db_cell("menu_range", c_max, "last")
         commits = commits[c_from:c_to]
-        i = read_db_cell('menu_range', 'last') - read_db_cell('menu_range', 'min') + 1
+        i = read_db_cell('menu_range', 'last') - \
+            read_db_cell('menu_range', 'min') + 1
         for commit in commits:
             i -= 1
             commit_message = commit['commit']['message']
-            commit_date = commit['commit']['author']['date'][:10].replace("-", r"\.")
+            commit_date = commit['commit']['author']['date'][:10].replace(
+                "-", r"\.")
             if commit['author'] is None:
                 commit_author = commit['commit']['author']['name']
             else:
@@ -54,8 +59,10 @@ def bot_about(update, context):
 Выберите ПК:'''
     keyboard = [[InlineKeyboardButton("👨🏻‍💻 Work", callback_data='sel_pc_1'),
                  InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
-                [InlineKeyboardButton("🆕 Изменения", callback_data='bot_changes')],
-                [InlineKeyboardButton("⚙️ Настройки", callback_data='bot_settings')],
+                [InlineKeyboardButton(
+                    "🆕 Изменения", callback_data='bot_changes')],
+                [InlineKeyboardButton(
+                    "⚙️ Настройки", callback_data='bot_settings')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}🤖 *О боте*\n"+about.replace('.', r'\.'),
@@ -88,9 +95,11 @@ def bot_changes(update, context):
 
     keyboard = [[InlineKeyboardButton("🔄", callback_data='bot_changes_upd')]]
     if c_from_ <= 0:
-        keyboard.append([InlineKeyboardButton("▶️", callback_data='bot_changes_right')])
+        keyboard.append([InlineKeyboardButton(
+            "▶️", callback_data='bot_changes_right')])
     elif c_to_ >= read_db_cell("menu_range", "last"):
-        keyboard.append([InlineKeyboardButton("◀️", callback_data='bot_changes_left')])
+        keyboard.append([InlineKeyboardButton(
+            "◀️", callback_data='bot_changes_left')])
     else:
         keyboard.append([InlineKeyboardButton("◀️", callback_data='bot_changes_left'),
                          InlineKeyboardButton("▶️", callback_data='bot_changes_right')])

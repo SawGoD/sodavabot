@@ -1,7 +1,8 @@
 import time
+
 from blocks import s_file_gen
-from blocks.u_handle_db import read_db_cell
 from blocks.u_common_func import get_path
+from blocks.u_handle_db import read_db_cell
 
 s_file_gen.create_main_db()
 s_file_gen.crete_env()
@@ -66,7 +67,8 @@ menu_buttons = {
     'power': 'power_menu(update, context)',
     'clipboard': 'clipboard_menu(update, context)',
     'screen': 'screen_menu(update, context)',
-
+    'additional_pc_menu': 'additional_pc_menu(update, context)',
+    
     'op_tabs': 'tabs_menu(update, context)',
 
     'vpn': 'vpn_menu(update, context)',
@@ -75,6 +77,10 @@ menu_buttons = {
 
     'script': 'scripts_menu(update, context)',
     'scr_eft': 'scr_eft_menu(update, context)'
+}
+
+dict_short_cmds = {
+    'explorer_fix': 'explorer_fix()'
 }
 
 dict_text_cmd = {
@@ -128,7 +134,6 @@ apps_os_act = {
 
     # Steam
     'st_off': f'{STEAM}/steam.exe'
-
 }
 
 multi_act = {

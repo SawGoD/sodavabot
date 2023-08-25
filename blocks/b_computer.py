@@ -1,19 +1,21 @@
+import datetime
+import json
 import os
-import telegram
+import socket
 import subprocess
 import threading
-import pyautogui
 import time
-import json
-import socket
-import datetime
-from blocks import u_send_logs
-from blocks import s_path
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
-from blocks.u_common_func import user_input, sound_alert, clock, mod_fix
-from blocks.u_handle_db import read_db_cell, write_db_cell
-from blocks.s_path import DEFPATH, SVCL, SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H, filler
+
+import pyautogui
+import telegram
 from dotenv import load_dotenv
+from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
+
+from blocks import s_path, u_send_logs
+from blocks.s_path import (DEFPATH, SPEAK_HEAD_A, SPEAK_HEAD_H, SPEAK_HEAD_S,
+                           SPEAK_MON_L, SPEAK_MON_R, SVCL, KILL, filler)
+from blocks.u_common_func import clock, mod_fix, sound_alert, user_input
+from blocks.u_handle_db import read_db_cell, write_db_cell
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
@@ -37,7 +39,8 @@ def get_volume():
         return
 
     try:
-        vol = int(round(float(subprocess.check_output(f"{SVCL} {keys[0]}".split()).decode('utf-8').strip())))
+        vol = int(round(float(subprocess.check_output(
+            f"{SVCL} {keys[0]}".split()).decode('utf-8').strip())))
     except ValueError:
         vol = 0
     write_db_cell("volume", vol, keys[1])
@@ -82,7 +85,8 @@ def set_output_device(device, query):
 def take_screenshot(key, context, update):
     if not os.path.exists(s_path.SHAREX):
         os.makedirs(s_path.SHAREX)
-    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_DOCUMENT)
+    context.bot.send_chat_action(
+        chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_DOCUMENT)
     for file_name in os.listdir(s_path.SHAREX):
         file_path = os.path.join(s_path.SHAREX, file_name)
         os.remove(file_path)
@@ -92,18 +96,22 @@ def take_screenshot(key, context, update):
     time.sleep(0.15)
     for filename in os.listdir(s_path.SHAREX):
         photo_message = context.bot.send_photo(chat_id=update.effective_chat.id,
-                                               photo=open(os.path.join(s_path.SHAREX, filename), 'rb'),
+                                               photo=open(os.path.join(
+                                                   s_path.SHAREX, filename), 'rb'),
                                                reply_markup=InlineKeyboardMarkup([[
                                                    InlineKeyboardButton(text="Удалить",
                                                                         callback_data=f"scrn_del:{filename}")
                                                ]]))
-        context.user_data[filename] = photo_message.message_id  # сохраняем ID сообщения в UserDict
+        # сохраняем ID сообщения в UserDict
+        context.user_data[filename] = photo_message.message_id
     if read_db_cell("sound_status") == 1:
         sound_alert("sound_screenshot.mp3")
 
 
 def speed_test():
-    u_send_logs.log_form_cmd(update=None, context=None, cmd=speed_test.__name__, action="запущен", effect=True)
+    u_send_logs.log_form_cmd(update=None, context=None,
+                             cmd=speed_test.__name__,
+                             action="запущен", effect=True)
     while True:
         p = subprocess.Popen(
             fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
@@ -124,6 +132,11 @@ def time_to_upd(upd_time, cur_time):
     return int(time_diff)
 
 
+def explorer_fix():
+    os.system(f"{KILL} explorer.exe")
+    os.system("start explorer.exe")
+
+
 def computer_menu(update, context):
     user_input(0, "none")
     query = update.callback_query
@@ -133,6 +146,8 @@ def computer_menu(update, context):
                 [InlineKeyboardButton("📷 Экран", callback_data='screen'),
                  InlineKeyboardButton("📋 Буфер обмена", callback_data='clipboard')],
                 [InlineKeyboardButton("⚠ Питание", callback_data='power')],
+                [InlineKeyboardButton(
+                    "📊 Дополнительно", callback_data='additional_pc_menu')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}🖥 *Компьютер*",
@@ -205,7 +220,8 @@ def vpn_menu(update, context):
         ext_ip = read_db_cell("interface", 'externalIp', filename=s_con_path)
         upd_time = read_db_cell("timestamp", filename=s_con_path)[11:-1]
         upd_time = timen[:-6] + upd_time[2:]
-        left_time = str(time_to_upd(str(upd_time), str(timen))).replace('-', '')
+        left_time = str(time_to_upd(
+            str(upd_time), str(timen))).replace('-', '')
     except (json.decoder.JSONDecodeError, KeyError, FileNotFoundError, ValueError) as err:
         int_ip = socket.gethostbyname(socket.gethostname())
         ping, ext_ip = "0", "0.0.0.0"
@@ -241,15 +257,15 @@ def power_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [
-                # [InlineKeyboardButton(f"⚫🟢 Состояние LED [x] ", callback_data='led_upd')],
-                [InlineKeyboardButton("🔄", callback_data='pc_reb'),
-                 InlineKeyboardButton("💤", callback_data='pc_hyb'),
-                 InlineKeyboardButton("⭕", callback_data='pc_off')],
-                [InlineKeyboardButton("🚫 Отмена", callback_data='pc_canc')],
-                [InlineKeyboardButton("🙈", callback_data='mon_off')],
+        # [InlineKeyboardButton(f"⚫🟢 Состояние LED [x] ", callback_data='led_upd')],
+        [InlineKeyboardButton("🔄", callback_data='pc_reb'),
+         InlineKeyboardButton("💤", callback_data='pc_hyb'),
+         InlineKeyboardButton("⭕", callback_data='pc_off')],
+        [InlineKeyboardButton("🚫 Отмена", callback_data='pc_canc')],
+        [InlineKeyboardButton("🙈", callback_data='mon_off')],
 
-                [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}⚠ *Питание*",
                             reply_markup=reply_markup,
@@ -282,6 +298,19 @@ def clipboard_menu(update, context):
          InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}📋 *Буфер обмена*",
+                            reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
+
+
+def additional_pc_menu(update, context):
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    keyboard = [
+        [InlineKeyboardButton("🗂️ Перезапуск", callback_data='explorer_fix')],
+        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{filler}📊 *Дополнительно*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
 

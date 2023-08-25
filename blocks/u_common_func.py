@@ -1,15 +1,17 @@
-import winreg
 import datetime
-import random
-import time
-import pyglet
-import sys
 import os
+import random
+import sys
+import time
+import winreg
+
+import pyglet
+
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
 # 2023      Март, апрель, май, июнь, июль, август
 start_date = 1 + 1 + 1 + 1 + 1+1
-ver = str(f'{start_date}.06b')
+ver = str(f'{start_date}.25b')
 
 
 def sound_alert(filename):

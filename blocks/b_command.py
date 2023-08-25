@@ -1,9 +1,11 @@
 import os
+
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from blocks import u_send_logs
-from blocks.u_common_func import clock, restart_bot
 from blocks.s_path import filler
+from blocks.u_common_func import clock, restart_bot
 
 
 def start(update, context):
@@ -18,9 +20,11 @@ def start(update, context):
     else:
         u_send_logs.log_form_cmd(update, context, effect=True, cmd="start")
         u_send_logs.log_form_tg(update, context, effect=True, cmd="start")
-        context.bot.send_message(chat_id=user_id, text=f"_Подключено_", parse_mode=telegram.ParseMode.MARKDOWN)
+        context.bot.send_message(
+            chat_id=user_id, text=f"_Подключено_", parse_mode=telegram.ParseMode.MARKDOWN)
         keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
-                    [InlineKeyboardButton("📟 Приложения", callback_data='apps')],
+                    [InlineKeyboardButton(
+                        "📟 Приложения", callback_data='apps')],
                     [InlineKeyboardButton("🤖 О боте", callback_data='bot_about')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_message(chat_id=user_id, text=f'{filler}🔝 *Меню*',
