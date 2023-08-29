@@ -1,10 +1,14 @@
 .idea
 .vscode
-.env
 __pycache__
-test
 blocks/__pycache__
+
+test
+
 data/s_connection.json
 data/s_main_db.json
 logs/error_py.txt
 logs/error_bat.txt
+
+.env
+Soda_VA_BOT.code-workspace
