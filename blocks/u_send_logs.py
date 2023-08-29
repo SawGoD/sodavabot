@@ -13,6 +13,19 @@ bot = telegram.Bot(token=TOKEN)
 
 
 def log_form_tg(update, context, cmd=None, effect=True, alert=None):
+    """
+    Функция для логирования информации о пользователе и команде в Telegram.
+
+    Аргументы:
+    - update: Объект, содержащий информацию о событии в Telegram.
+    - context: Контекст выполнения команды.
+    - cmd: Команда, которую выполняет пользователь.
+    - effect: Флаг, указывающий на наличие доступа к команде.
+    - alert: Список команд, на которые нужно обратить внимание.
+
+    Возвращает:
+    - None
+    """
     if read_db_cell("log_status") == 1:
         query = update.callback_query
         daten, timen = clock()
@@ -49,14 +62,26 @@ def log_form_tg(update, context, cmd=None, effect=True, alert=None):
         if user_id in os.getenv('LOG_IGNORED_USERS'):
             pass
         else:
-            bot.send_message(chat_id=os.getenv('LOG_OUTPUT'),
-                             text=log_message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
+            bot.send_message(chat_id=os.getenv('LOG_OUTPUT'), text=log_message,
+                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
     else:
         pass
 
 
 def log_form_cmd(update, context, cmd=None, action=None, effect=True):
-    # Log type: command, query
+    """
+    Функция для логирования информации о команде в консоли.
+
+    Аргументы:
+    - update: Объект, содержащий информацию о событии в Telegram.
+    - context: Контекст выполнения команды.
+    - cmd: Команда, которую выполняет пользователь.
+    - action: Действие, связанное с командой.
+    - effect: Флаг, указывающий на наличие доступа к команде.
+
+    Возвращает:
+    - None
+    """
     daten, timen = clock()
     if update is None:
         if effect is True:

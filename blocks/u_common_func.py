@@ -15,6 +15,7 @@ ver = str(f'{start_date}.25b')
 
 
 def sound_alert(filename):
+    # Воспроизводит звуковой сигнал
     player = pyglet.media.Player()
     source = pyglet.media.load(f"./resource/sounds/{filename}")
     player.queue(source)
@@ -23,11 +24,13 @@ def sound_alert(filename):
 
 
 def restart_bot():
+    # Перезапускает бота
     python = sys.executable
     os.execv(python, [python, fr".\soda_va_bot.py"])
 
 
 def ver_greet():
+    # Выводит приветствие с версией и текущей датой и временем
     daten, timen = clock()
     for i in range(1):
         print('')
@@ -42,6 +45,7 @@ def ver_greet():
 
 
 def clock():
+    # Возвращает текущую дату и время
     now = datetime.datetime.now()
     now_date = now.strftime("%d.%m.%y")
     now_time = now.strftime('%H:%M:%S')
@@ -49,22 +53,24 @@ def clock():
 
 
 def get_path(path, file):
-    # Открываем ключ реестра, содержащий информацию о приложении Steam
+    # Открывает ключ реестра, содержащий информацию о приложении Steam
     key = winreg.OpenKey(
         winreg.HKEY_CURRENT_USER,
         fr"Software\{path}")
     value, reg_type = winreg.QueryValueEx(key, file)
-    # Возвращаем найденный путь
+    # Возвращает найденный путь
     return value
 
 
 def user_input(s, h_type):
+    # Записывает в базу данных ожидаемый пользовательский ввод и тип обработки
     write_db_cell("waiting_input", s)
     write_db_cell("handle_type", h_type)
 
 
 # Функция для устранения ошибки об отсутствии изменений
 def mod_fix():
+    # Генерирует случайную строку для исправления ошибки
     result = ''
     for i in range(random.randint(5, 5)):
         result += random.choice('ㅤㅤㅤㅤㅤ     ')
