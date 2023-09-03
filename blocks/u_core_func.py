@@ -17,6 +17,7 @@ from blocks.b_app import (app_menu, app_ui, games_menu, scr_eft_menu,
 from blocks.b_computer import (clipboard_menu, computer_menu, explorer_fix, multi_menu,
                                power_menu, screen_menu, set_output_device,
                                take_screenshot, vpn_menu, additional_pc_menu)
+from blocks.b_hints import hints_menu
 from blocks.s_scripts_list import sdb_path
 from blocks.u_common_func import restart_bot, sound_alert, user_input
 from blocks.u_handle_db import read_db_cell, write_db_cell
@@ -273,6 +274,10 @@ def button(update, context):
             status = 0 if read_db_cell("sound_status") == 1 else 1
             write_db_cell(f"sound_status", status)
             bot_settings(update, context)
+        elif query.data == 'hints':
+            status = 0 if read_db_cell("hints_status") == 1 else 1
+            write_db_cell(f"hints_status", status)
+            bot_settings(update, context)
         elif query.data == 'bot_changes':
             update_menu_range(update, context, 0, 5, 1)
         elif query.data == 'bot_changes_right':
@@ -281,6 +286,8 @@ def button(update, context):
         elif query.data == 'bot_changes_left':
             update_menu_range(update, context, read_db_cell('menu_range', 'min') - 5,
                               read_db_cell('menu_range', 'max') - 5, read_db_cell('menu_range', 'page') - 1)
+        elif query.data[:5] == 'hints':
+            hints_menu(update, context)
         elif query.data == 'mmenu':
             user_input(0, "none")
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],

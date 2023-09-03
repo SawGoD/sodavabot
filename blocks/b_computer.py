@@ -193,10 +193,15 @@ def multi_menu(update, context):
                  InlineKeyboardButton(f"{'🔇' if read_db_cell('volume_status') == 0 else '🔊'}",
                                       callback_data='vol_on_off'),
                  InlineKeyboardButton("+10", callback_data="vol_up10"),
-                 InlineKeyboardButton("➕", callback_data='vol_up')],
+                 InlineKeyboardButton("➕", callback_data='vol_up')]]
 
-                [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                 InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
+    if read_db_cell("hints_status") == 1:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("💡", callback_data='hints_multi'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    else:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}🔂 *Мультимедиа*{mod_fix()}",
                             reply_markup=reply_markup,
@@ -262,10 +267,15 @@ def power_menu(update, context):
          InlineKeyboardButton("💤", callback_data='pc_hyb'),
          InlineKeyboardButton("⭕", callback_data='pc_off')],
         [InlineKeyboardButton("🚫 Отмена", callback_data='pc_canc')],
-        [InlineKeyboardButton("🙈", callback_data='mon_off')],
+        [InlineKeyboardButton("🙈", callback_data='mon_off')]]
 
-        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+    if read_db_cell("hints_status") == 1:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("💡", callback_data='hints_power'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    else:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}⚠ *Питание*",
                             reply_markup=reply_markup,
@@ -278,10 +288,15 @@ def screen_menu(update, context):
     keyboard = [
         [InlineKeyboardButton("◼️", callback_data='scrn_full'),
          InlineKeyboardButton("◾️", callback_data='scrn_mon'),
-         InlineKeyboardButton("▪️", callback_data='scrn_app')],
+         InlineKeyboardButton("▪️", callback_data='scrn_app')]]
 
-        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+    if read_db_cell("hints_status") == 1:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("💡", callback_data='hints_screen'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    else:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}📷 *Экран*",
                             reply_markup=reply_markup,
@@ -306,9 +321,14 @@ def additional_pc_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [
-        [InlineKeyboardButton("🗂️ Перезапуск", callback_data='explorer_fix')],
-        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+        [InlineKeyboardButton("🗂️ Перезапуск", callback_data='explorer_fix')]]
+    if read_db_cell("hints_status") == 1:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("💡", callback_data='hints_additional_pc_menu'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    else:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}📊 *Дополнительно*",
                             reply_markup=reply_markup,

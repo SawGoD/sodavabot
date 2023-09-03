@@ -1,5 +1,4 @@
 import os
-
 import requests
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -10,6 +9,7 @@ from blocks.u_handle_db import read_db_cell, write_db_cell
 
 
 def get_changes(repo, c_from=0, c_to=5):
+    # Функция для получения последних изменений в репозитории
     url = f"https://api.github.com/repos/SawGoD/{repo}/commits?per_page=99"
     response = requests.get(
         url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
@@ -43,6 +43,7 @@ def get_changes(repo, c_from=0, c_to=5):
 
 
 def update_menu_range(update, context, min_val, max_val, page_val):
+    # Функция для обновления диапазона меню
     write_db_cell("menu_range", min_val, "min")
     write_db_cell("menu_range", max_val, "max")
     write_db_cell("menu_range", page_val, "page")
@@ -50,6 +51,7 @@ def update_menu_range(update, context, min_val, max_val, page_val):
 
 
 def bot_about(update, context):
+    # Функция для отображения информации о боте
     query = update.callback_query
     user_id = str(query.message.chat_id)
     about = fr'''"SODA VA BOT"
@@ -71,12 +73,15 @@ def bot_about(update, context):
 
 
 def bot_settings(update, context):
+    # Функция для отображения настроек бота
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton(f"📝 Логирование {'🟢' if read_db_cell('log_status') == 1 else '⚫'}",
                                       callback_data='logger')],
                 [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
                                       callback_data='sounds')],
+                [InlineKeyboardButton(f"💡 Подсказки {'🟢' if read_db_cell('hints_status') == 1 else '⚫'}",
+                                      callback_data='hints')],
                 [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)

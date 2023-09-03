@@ -8,6 +8,7 @@ def create_main_db():
         data = {
             "sound_status": 1,
             "log_status": 1,
+            "hints_status": 1,
             "pc": 2,
             "cur_pc": "👩🏻‍💻 Домашний ПК",
             "volume_status": 1,
