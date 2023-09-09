@@ -12,8 +12,9 @@ from dotenv import load_dotenv
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
 from blocks import s_path, u_send_logs
-from blocks.s_path import (DEFPATH, SPEAK_HEAD_A, SPEAK_HEAD_H, SPEAK_HEAD_S,
-                           SPEAK_MON_L, SPEAK_MON_R, SVCL, KILL, filler)
+from blocks.s_path import (DEFPATH, KILL, SPEAK_HEAD_A, SPEAK_HEAD_H,
+                           SPEAK_HEAD_S, SPEAK_MON_L, SPEAK_MON_R, SVCL,
+                           filler)
 from blocks.u_common_func import clock, mod_fix, sound_alert, user_input
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
@@ -240,12 +241,18 @@ def vpn_menu(update, context):
 \- \- \- \- \- \- \- \- \- \- \- \- \- \- \- \-
     _Обновлено:_ {upd_time}
     _Осталось:_ {left_time}сек'''
-    keyboard = [[InlineKeyboardButton(f"🇩🇪 DE {'🟢' if read_db_cell('vpn_status') == 'DE' else '⚫'}",
+    keyboard = [[InlineKeyboardButton(f"🇩🇪 DE-tcp {'🟢' if read_db_cell('vpn_status') == 'vpn_1' else '⚫'}",
                                       callback_data='vpn_1'),
-                 InlineKeyboardButton(f"🇹🇷 TR {'🟢' if read_db_cell('vpn_status') == 'TR' else '⚫'}",
+                 InlineKeyboardButton(f"🇹🇷 TR-tcp {'🟢' if read_db_cell('vpn_status') == 'vpn_2' else '⚫'}",
                                       callback_data='vpn_2'),
-                 InlineKeyboardButton(f"🇱🇹 LT {'🟢' if read_db_cell('vpn_status') == 'LT' else '⚫'}",
+                 InlineKeyboardButton(f"🇱🇹 LT-tcp {'🟢' if read_db_cell('vpn_status') == 'vpn_3' else '⚫'}",
                                       callback_data='vpn_3')],
+                [InlineKeyboardButton(f"🇩🇪 DE-udp {'🟢' if read_db_cell('vpn_status') == 'vpn_4' else '⚫'}",
+                                      callback_data='vpn_4'),
+                 InlineKeyboardButton(f"🇺🇦 UA-udp {'🟢' if read_db_cell('vpn_status') == 'vpn_5' else '⚫'}",
+                                      callback_data='vpn_5'),
+                 InlineKeyboardButton(f"🇫🇮 FI-udp {'🟢' if read_db_cell('vpn_status') == 'vpn_6' else '⚫'}",
+                                      callback_data='vpn_6')],
 
                 [InlineKeyboardButton(f"📶 Mbps: {sp_avg}", callback_data='con_speed'),
                  InlineKeyboardButton("⭕ Выключить ", callback_data='vpn_off')],
@@ -292,7 +299,8 @@ def screen_menu(update, context):
 
     if read_db_cell("hints_status") == 1:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                        InlineKeyboardButton("💡", callback_data='hints_screen'),
+                        InlineKeyboardButton(
+                            "💡", callback_data='hints_screen'),
                         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     else:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
@@ -324,7 +332,8 @@ def additional_pc_menu(update, context):
         [InlineKeyboardButton("🗂️ Перезапуск", callback_data='explorer_fix')]]
     if read_db_cell("hints_status") == 1:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-                        InlineKeyboardButton("💡", callback_data='hints_additional_pc_menu'),
+                        InlineKeyboardButton(
+                            "💡", callback_data='hints_additional_pc_menu'),
                         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     else:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),

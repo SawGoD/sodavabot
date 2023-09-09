@@ -26,6 +26,10 @@ def create_main_db():
                 "page": 6,
                 "last": 30
             },
+            "admin_only": {
+                "screen_state": 1,
+                "power_state": 1
+            },
             "app_name": "",
             "waiting_input": 0,
             "handle_type": "none",
@@ -36,8 +40,6 @@ def create_main_db():
         }
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-            # f.seek(0)
-            # f.truncate()
 
 
 def crete_env():
@@ -45,6 +47,7 @@ def crete_env():
     if not os.path.exists(filepath):
         data = "BOT_TOKEN=repalce\n" \
                "ALLOWED_USERS={'replace', 'replace', '334969852'}\n" \
+               "ADMIN_USERS={'replace', 'replace', '334969852'}\n" \
                "LOG_IGNORED_USERS={'replace', 'replace', '334969852'}\n" \
                "LOG_OUTPUT=replace\n" \
                "LOG_ALERT={'screen', 'scrn_full', 'scrn_mon', 'scrn_app', 'logger'}\n" \

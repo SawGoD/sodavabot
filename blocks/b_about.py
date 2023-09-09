@@ -81,11 +81,31 @@ def bot_settings(update, context):
                 [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
                                       callback_data='sounds')],
                 [InlineKeyboardButton(f"💡 Подсказки {'🟢' if read_db_cell('hints_status') == 1 else '⚫'}",
-                                      callback_data='hints')],
-                [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
+                                      callback_data='hints')]]
+    if user_id in os.getenv('ADMIN_USERS'):
+        keyboard.append([InlineKeyboardButton("🛡️ Управление", callback_data='bot_settings_admin')])
+    keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
                  InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}⚙️ *Настройки*",
+                            reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    
+    
+def bot_settings_admin(update, context):
+    # Функция для управления доступом к некоторым функциям
+    # Используется только для администратора
+    # Будет меняться в будущем
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    keyboard = [[InlineKeyboardButton(f"📷 Экран {'🟢' if read_db_cell('admin_only', 'screen_state') == 1 else '⚫'}",
+                                      callback_data='screen_state')],
+                [InlineKeyboardButton(f"⚠ Питание {'🟢' if read_db_cell('admin_only', 'power_state') == 1 else '⚫'}",
+                                      callback_data='power_state')],
+                [InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
+                 InlineKeyboardButton("Меню 🔝", callback_data='mmenu')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{filler}🛡️ *Управление*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
 

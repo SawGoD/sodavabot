@@ -11,12 +11,13 @@ from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
 from blocks import s_path, u_send_logs
 from blocks.b_about import (bot_about, bot_changes, bot_settings,
-                            update_menu_range)
+                            bot_settings_admin, update_menu_range)
 from blocks.b_app import (app_menu, app_ui, games_menu, scr_eft_menu,
                           scripts_menu, sdai_links_menu, tabs_menu)
-from blocks.b_computer import (clipboard_menu, computer_menu, explorer_fix, multi_menu,
+from blocks.b_computer import (additional_pc_menu, clipboard_menu,
+                               computer_menu, explorer_fix, multi_menu,
                                power_menu, screen_menu, set_output_device,
-                               take_screenshot, vpn_menu, additional_pc_menu)
+                               take_screenshot, vpn_menu)
 from blocks.b_hints import hints_menu
 from blocks.s_scripts_list import sdb_path
 from blocks.u_common_func import restart_bot, sound_alert, user_input
@@ -87,7 +88,6 @@ def handle_text(update, context):
 
 def button(update, context):
     query = update.callback_query
-    # user = update.effective_user
     user_id = str(query.message.chat_id)
     if user_id not in os.getenv('ALLOWED_USERS'):
         u_send_logs.log_form_tg(
@@ -125,15 +125,27 @@ def button(update, context):
             query.answer(text=command['text'])
             user_input(1, command['cell'])
 
+        elif query.data == 'screen':
+            if read_db_cell('admin_only', 'screen_state') == 1 or user_id in os.getenv('ADMIN_USERS'):
+                screen_menu(update, context)
+            else:
+                query.answer(text='Недоступно')
+        elif query.data == 'power':
+            if read_db_cell('admin_only', 'power_state') == 1 or user_id in os.getenv('ADMIN_USERS'):
+                power_menu(update, context)
+            else:
+                query.answer(text='Недоступно')
+
         elif query.data in s_path.vpn_paths:
             query.answer(text='Подключение через 5 секунд')
             os.system(f'{s_path.VPN_TO} {s_path.vpn_paths[query.data]}')
-            if query.data == 'vpn_1':
-                write_db_cell("vpn_status", "DE")
-            elif query.data == 'vpn_2':
-                write_db_cell("vpn_status", "TR")
-            elif query.data == 'vpn_3':
-                write_db_cell("vpn_status", "LT")
+            if query.data[:-1] == 'vpn_':
+                write_db_cell("vpn_status", query.data)
+            vpn_menu(update, context)
+        elif query.data == 'vpn_off':
+            query.answer(text='Отключение через 3 секунды')
+            os.system(f'{s_path.VPN_OFF}')
+            write_db_cell("vpn_status", "vpn_off")
             vpn_menu(update, context)
 
         elif query.data == 'vol_down10':
@@ -170,6 +182,7 @@ def button(update, context):
                 current_markup.inline_keyboard[4][2].text = f"🔊"
                 pyautogui.press("volumemute")
             query.edit_message_reply_markup(reply_markup=current_markup)
+
         elif query.data.startswith(('scrn_del:', 'text_del:')):
             if query.data.startswith('scrn_del:'):
                 # получаем название файла скриншота из callback_data
@@ -206,11 +219,6 @@ def button(update, context):
         elif query.data == 'con_speed':
             query.answer(text='Автообновление каждые 30 секунд')
             vpn_menu(update, context)
-        elif query.data == 'vpn_off':
-            query.answer(text='Отключение через 3 секунды')
-            os.system(f'{s_path.VPN_OFF}')
-            write_db_cell("vpn_status", "off")
-            vpn_menu(update, context)
         elif query.data in ['opera', 'steam', 'sdai']:
             write_db_cell("app_name", query.data, None)
             app_ui(update, context)
@@ -220,6 +228,7 @@ def button(update, context):
         elif query.data == 'sdai_off':
             # os.system('taskkill /f /PID 8989898')
             print("off - ne rabotaer")
+            # TODO сделать закрытие приложения
 
         elif query.data == 'scr_eft_1':
             status = 0 if read_db_cell(
@@ -278,6 +287,16 @@ def button(update, context):
             status = 0 if read_db_cell("hints_status") == 1 else 1
             write_db_cell(f"hints_status", status)
             bot_settings(update, context)
+        elif query.data == 'screen_state':
+            status = 0 if read_db_cell(
+                'admin_only', 'screen_state') == 1 else 1
+            write_db_cell('admin_only', status, 'screen_state')
+            bot_settings_admin(update, context)
+        elif query.data == 'power_state':
+            status = 0 if read_db_cell('admin_only', 'power_state') == 1 else 1
+            write_db_cell('admin_only', status, 'power_state')
+            bot_settings_admin(update, context)
+
         elif query.data == 'bot_changes':
             update_menu_range(update, context, 0, 5, 1)
         elif query.data == 'bot_changes_right':

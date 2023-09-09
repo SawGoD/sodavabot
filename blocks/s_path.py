@@ -40,10 +40,6 @@ NIRCMD = fr'{DEFPATH}/resource/nircmd.exe'
 
 SHAREX = fr'{DEFPATH}\resource\ShareX\full_screen'
 
-DE = 'DE-Frankfurt.ovpn'
-TR = 'TR-Istanbul.ovpn'
-LT = 'LT-Vilnius.ovpn'
-
 VPN_ON = fr'"{VPN_PATH}" --connect LT-Vilnius.ovpn'
 VPN_TO = fr'"{VPN_PATH}" --connect'
 VPN_OFF = fr'"{VPN_PATH}" --command disconnect_all'
@@ -61,12 +57,11 @@ menu_buttons = {
 
     'bot_about': 'bot_about(update, context)',
     'bot_settings': 'bot_settings(update, context)',
+    'bot_settings_admin': 'bot_settings_admin(update, context)',
     'bot_changes_upd': 'bot_changes(update, context)',
 
     'multi': 'multi_menu(update, context)',
-    'power': 'power_menu(update, context)',
     'clipboard': 'clipboard_menu(update, context)',
-    'screen': 'screen_menu(update, context)',
     'additional_pc_menu': 'additional_pc_menu(update, context)',
     
     'op_tabs': 'tabs_menu(update, context)',
@@ -129,7 +124,7 @@ apps_os_act = {
     'op_off': f'{KILL} opera.exe',
 
     # SDAI
-    'sdai_on': 'start "SDAI Monitor" S:/SD/webui-user.bat',
+    'sdai_on': 'start "SDAI Monitor" A:/USD/webui-user.bat',
     'sdai_off': '',
 
     # Steam
@@ -157,9 +152,12 @@ scr_keys = {
 
 
 vpn_paths = {
-    'vpn_1': DE,
-    'vpn_2': TR,
-    'vpn_3': LT
+    'vpn_1': "DE_Berlin-tcp.ovpn",
+    'vpn_2': "LT_Vilnius-tcp.ovpn",
+    'vpn_3': "TR_Istanbul-tcp.ovpn",
+    'vpn_4': "DE_Frankfurt-udp.ovpn",
+    'vpn_5': "UA_Kiev-udp.ovpn",
+    'vpn_6': "FI_Helsinki-udp.ovpn"
 }
 
 tabs_hotkeys = {
