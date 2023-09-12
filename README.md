@@ -76,7 +76,7 @@
 
 `STEAM_PASS=replace` - Пароль для Steam
 
-`API_TOKEN_GIT=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` - Token для получения списка изменений из GitHub 
+`API_TOKEN_GIT=unavailable` - Token для получения списка изменений из GitHub, для разработчика
 
 `API_TOKEN=replace`- Placeholder для будущих/возможных изменений
 
