@@ -1,6 +1,7 @@
 import datetime
 import os
 import random
+import re
 import sys
 import time
 import winreg
@@ -8,11 +9,6 @@ import winreg
 import pyglet
 
 from blocks.u_handle_db import read_db_cell, write_db_cell
-
-# 2023      Март, апрель, май, июнь, июль, август, сентябрь
-start_date = 1 + 1 + 1 + 1 + 1 + 1 + 1
-ver = str(f'{start_date}.09b')
-
 
 def sound_alert(filename):
     # Воспроизводит звуковой сигнал
@@ -29,13 +25,22 @@ def restart_bot():
     os.execv(python, [python, fr".\soda_va_bot.py"])
 
 
+def get_version():
+    with open('README.md', 'r', encoding='utf-8') as file:
+        first_line = file.readline()
+        match = re.search(r'v(\d+\.\d+\w+)', first_line)
+        if match:
+            ver = match.group(1)
+            return ver
+
+
 def ver_greet():
     # Выводит приветствие с версией и текущей датой и временем
     daten, timen = clock()
     for i in range(1):
         print('')
     print("==================")
-    print(f"Soda v{ver} started")
+    print(f"Soda v{get_version()} started")
     print("Дата:", daten)
     print("Время:", timen)
     print("==================")

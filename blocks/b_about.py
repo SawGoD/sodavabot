@@ -4,7 +4,7 @@ import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from blocks.s_path import filler
-from blocks.u_common_func import mod_fix, ver
+from blocks.u_common_func import mod_fix, get_version 
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
 
@@ -55,7 +55,7 @@ def bot_about(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     about = fr'''"SODA VA BOT"
-        *Версия бота:* _{ver}_
+        *Версия бота:* _v{get_version()}_
         *Сейчас выбран:* _{read_db_cell("cur_pc")}_
 
 Выберите ПК:'''
