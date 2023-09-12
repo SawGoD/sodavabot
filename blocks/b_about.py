@@ -11,8 +11,11 @@ from blocks.u_handle_db import read_db_cell, write_db_cell
 def get_changes(repo, c_from=0, c_to=5):
     # Функция для получения последних изменений в репозитории
     url = f"https://api.github.com/repos/SawGoD/{repo}/commits?per_page=99"
-    response = requests.get(
-        url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
+    if os.getenv('API_TOKEN_GIT') != 'unavailable':
+        response = requests.get(
+            url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
+    else:
+        response = requests.get(url)
     output = "Последние изменения:\n\n"
     if response.status_code == 200:
         commits = response.json()

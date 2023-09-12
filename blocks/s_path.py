@@ -1,11 +1,11 @@
 import time
 
-from blocks import s_file_gen
+from blocks.s_file_gen import create_env, create_main_db
 from blocks.u_common_func import get_path
 from blocks.u_handle_db import read_db_cell
 
-s_file_gen.create_main_db()
-s_file_gen.crete_env()
+create_main_db()
+create_env()
 time.sleep(0.15)
 
 

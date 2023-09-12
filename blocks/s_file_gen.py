@@ -3,7 +3,7 @@ import os
 
 
 def create_main_db():
-    filepath = ".\\data\\s_main_db.json"
+    filepath = ".\data\s_main_db.json"
     if not os.path.exists(filepath):
         data = {
             "sound_status": 1,
@@ -21,6 +21,7 @@ def create_main_db():
                 "mon_l": 0
             },
             "menu_range": {
+                "repo": "sodavabot",
                 "min": 0,
                 "max": 5,
                 "page": 6,
@@ -42,7 +43,7 @@ def create_main_db():
             json.dump(data, f, indent=4, ensure_ascii=False)
 
 
-def crete_env():
+def create_env():
     filepath = '.env'
     if not os.path.exists(filepath):
         data = "BOT_TOKEN=repalce\n" \
@@ -55,5 +56,9 @@ def crete_env():
                "STEAM_PASS=replace\n" \
                "API_TOKEN_GIT=replace\n" \
                "API_TOKEN=replace\n"
-        with open('.env', 'w') as file:
+        with open(filepath, 'w') as file:
             file.write(data)
+            
+            
+create_main_db()
+create_env()
