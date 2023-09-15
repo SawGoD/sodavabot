@@ -8,8 +8,8 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler, Filters,
                           MessageHandler, Updater)
 
 from blocks import u_send_logs
-from blocks.b_command import restart, start
-from blocks.b_computer import thread_speed_test
+from blocks.b_command import restart, start, get_threads
+from blocks.b_computer import thread_speed_test, thread_check_health
 from blocks.s_scripts_list import (thread_script_eft_1, thread_script_eft_2,
                                    thread_script_eft_3)
 from blocks.u_common_func import restart_bot, ver_greet
@@ -18,10 +18,10 @@ from blocks.u_core_func import button, handle_text
 thread_script_eft_1.start()
 thread_script_eft_2.start()
 thread_script_eft_3.start()
+thread_check_health.start()
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
-
 
 def main():
     with open(r'.\logs\error_py.txt', 'w', encoding='utf-8') as f:
@@ -33,6 +33,7 @@ def main():
             dp = updater.dispatcher
             dp.add_handler(CommandHandler('start', start))
             dp.add_handler(CommandHandler('restart', restart))
+            dp.add_handler(CommandHandler('get_threads', get_threads))
             dp.add_handler(CallbackQueryHandler(button))
             dp.add_handler(MessageHandler(
                 Filters.text, handle_text, run_async=True))

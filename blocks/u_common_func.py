@@ -4,6 +4,7 @@ import random
 import re
 import sys
 import time
+import threading
 import winreg
 
 import pyglet
@@ -81,3 +82,22 @@ def mod_fix():
         result += random.choice('ㅤㅤㅤㅤㅤ     ')
         result += random.choice('     ㅤㅤㅤㅤㅤ')
     return result
+
+
+def menu_updater(name, update, context):
+    # Непрерывно обновляет меню, пока статус обновления равен 1
+    while True:
+        if read_db_cell("updater_status") == 1:
+            # print(f"Обновление{mod_fix()}...")
+            name(update, context)
+            time.sleep(1)
+        else:
+            menu_updater.join()
+            # print(f"Обновление{mod_fix()}завершено")
+            break
+
+def thread_make(thread_name, name_func, name_func2, update, context):
+    # Создает и запускает новый поток с указанной функцией и аргументами
+    # В основном используется для menu_updater
+    thread_name = threading.Thread(target=name_func, args=(name_func2, update, context))
+    thread_name.start()

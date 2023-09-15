@@ -15,9 +15,9 @@ from blocks.b_about import (bot_about, bot_changes, bot_settings,
 from blocks.b_app import (app_menu, app_ui, games_menu, scr_eft_menu,
                           scripts_menu, sdai_links_menu, tabs_menu)
 from blocks.b_computer import (additional_pc_menu, clipboard_menu,
-                               computer_menu, explorer_fix, multi_menu,
-                               power_menu, screen_menu, set_output_device,
-                               take_screenshot, vpn_menu)
+                               computer_menu, explorer_fix, health_menu,
+                               multi_menu, power_menu, screen_menu,
+                               set_output_device, take_screenshot, vpn_menu)
 from blocks.b_hints import hints_menu
 from blocks.s_scripts_list import sdb_path
 from blocks.u_common_func import restart_bot, sound_alert, user_input
@@ -309,6 +309,8 @@ def button(update, context):
             hints_menu(update, context)
         elif query.data == 'mmenu':
             user_input(0, "none")
+            write_db_cell("pc_health_check", 0, "check_status")
+            write_db_cell("updater_status", 0)
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                         [InlineKeyboardButton(
                             "📟 Приложения", callback_data='apps')],

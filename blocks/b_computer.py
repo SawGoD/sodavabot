@@ -5,7 +5,8 @@ import socket
 import subprocess
 import threading
 import time
-
+import psutil
+import keyboard
 import pyautogui
 import telegram
 from dotenv import load_dotenv
@@ -15,7 +16,9 @@ from blocks import s_path, u_send_logs
 from blocks.s_path import (DEFPATH, KILL, SPEAK_HEAD_A, SPEAK_HEAD_H,
                            SPEAK_HEAD_S, SPEAK_MON_L, SPEAK_MON_R, SVCL,
                            filler)
-from blocks.u_common_func import clock, mod_fix, sound_alert, user_input
+from blocks.u_common_func import (clock, menu_updater, mod_fix, sound_alert,
+                                  thread_make, user_input)
+import blocks.u_common_func
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
 load_dotenv()
@@ -136,17 +139,29 @@ def time_to_upd(upd_time, cur_time):
 def explorer_fix():
     os.system(f"{KILL} explorer.exe")
     os.system("start explorer.exe")
+    
+
+def check_health():
+    while True:
+        if read_db_cell("pc_health_check", "check_status") == 1:
+            cpu_percent = psutil.cpu_percent(interval=3)
+            write_db_cell("pc_health_check", cpu_percent, "cpu")
+            memory = psutil.virtual_memory()
+            write_db_cell("pc_health_check", memory.percent, "ram")
 
 
 def computer_menu(update, context):
     user_input(0, "none")
+    write_db_cell("pc_health_check", 0, "check_status")
+    write_db_cell("updater_status", 0)
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🔂 Мультимедиа", callback_data='multi'),
                  InlineKeyboardButton("🔒 VPN", callback_data='vpn')],
                 [InlineKeyboardButton("📷 Экран", callback_data='screen'),
                  InlineKeyboardButton("📋 Буфер обмена", callback_data='clipboard')],
-                [InlineKeyboardButton("⚠ Питание", callback_data='power')],
+                [InlineKeyboardButton("🏃‍♂️ Состояние", callback_data='health'), 
+                 InlineKeyboardButton("⚠ Питание", callback_data='power')],
                 [InlineKeyboardButton(
                     "📊 Дополнительно", callback_data='additional_pc_menu')],
                 [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
@@ -260,9 +275,12 @@ def vpn_menu(update, context):
                 [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}🔒 *VPN*\n{about}",
+    query.edit_message_text(text=f"{filler}🔒 *VPN*{mod_fix()}\n{about}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    if read_db_cell("updater_status") == 0:
+        write_db_cell("updater_status", 1)
+        thread_make("updater_speed", menu_updater, vpn_menu, update, context)
 
 
 def power_menu(update, context):
@@ -323,6 +341,26 @@ def clipboard_menu(update, context):
     query.edit_message_text(text=f"{filler}📋 *Буфер обмена*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    
+    
+def health_menu(update, context):
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    write_db_cell("pc_health_check", 1, "check_status")
+    mes = f'''
+CPU: {read_db_cell("pc_health_check", "cpu")}%
+RAM: {read_db_cell("pc_health_check", "ram")}%
+    '''
+    mes = mes.replace(".", r"\.")
+    keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{filler}🏃‍♂️ *Состояние*{mod_fix()}{mes}",
+                            reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    if read_db_cell("updater_status") == 0:
+        write_db_cell("updater_status", 1)
+        thread_make("updater_health", menu_updater, health_menu, update, context)
 
 
 def additional_pc_menu(update, context):
@@ -345,3 +383,4 @@ def additional_pc_menu(update, context):
 
 
 thread_speed_test = threading.Thread(target=speed_test)
+thread_check_health = threading.Thread(target=check_health)

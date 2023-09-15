@@ -62,6 +62,7 @@ menu_buttons = {
 
     'multi': 'multi_menu(update, context)',
     'clipboard': 'clipboard_menu(update, context)',
+    'health': 'health_menu(update, context)',
     'additional_pc_menu': 'additional_pc_menu(update, context)',
     
     'op_tabs': 'tabs_menu(update, context)',
