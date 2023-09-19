@@ -75,13 +75,19 @@ def user_input(s, h_type):
 
 
 # Функция для устранения ошибки об отсутствии изменений
-def mod_fix():
+def mod_fix(mod_type=None):
     # Генерирует случайную строку для исправления ошибки
     result = ''
-    for i in range(random.randint(5, 5)):
-        result += random.choice('ㅤㅤㅤㅤㅤ     ')
-        result += random.choice('     ㅤㅤㅤㅤㅤ')
-    return result
+    if mod_type == 'name':
+        for i in range(random.randint(2, 2)):
+            result += random.choice('12345')
+            result += random.choice('67890')
+        return result
+    else:
+        for i in range(random.randint(5, 5)):
+            result += random.choice('ㅤㅤㅤㅤㅤ     ')
+            result += random.choice('     ㅤㅤㅤㅤㅤ')
+        return result
 
 
 def menu_updater(name, update, context):

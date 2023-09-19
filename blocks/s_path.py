@@ -39,6 +39,7 @@ INCOGNITO = f'"{BROWSER}" --private'
 NIRCMD = fr'{DEFPATH}/resource/nircmd.exe'
 
 SHAREX = fr'{DEFPATH}\resource\ShareX\full_screen'
+SCREENPATH = fr'{DEFPATH}\resource\screenshots'
 
 VPN_ON = fr'"{VPN_PATH}" --connect LT-Vilnius.ovpn'
 VPN_TO = fr'"{VPN_PATH}" --connect'
@@ -146,9 +147,10 @@ multi_act = {
 }
 
 scr_keys = {
-    'scrn_full': 'ctrl',
-    'scrn_mon': 'alt',
-    'scrn_app': 'shift'
+    'scrn_app': None,
+    'scrn_full': -1,
+    'scrn_1': 1,
+    'scrn_2': 2
 }
 
 

@@ -5,20 +5,23 @@ import socket
 import subprocess
 import threading
 import time
-import psutil
+
 import keyboard
+import psutil
 import pyautogui
+import pygetwindow as gw
 import telegram
 from dotenv import load_dotenv
+import mss
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
+import blocks.u_common_func
 from blocks import s_path, u_send_logs
 from blocks.s_path import (DEFPATH, KILL, SPEAK_HEAD_A, SPEAK_HEAD_H,
                            SPEAK_HEAD_S, SPEAK_MON_L, SPEAK_MON_R, SVCL,
                            filler)
 from blocks.u_common_func import (clock, menu_updater, mod_fix, sound_alert,
                                   thread_make, user_input)
-import blocks.u_common_func
 from blocks.u_handle_db import read_db_cell, write_db_cell
 
 load_dotenv()
@@ -87,25 +90,29 @@ def set_output_device(device, query):
 
 
 def take_screenshot(key, context, update):
-    if not os.path.exists(s_path.SHAREX):
-        os.makedirs(s_path.SHAREX)
     context.bot.send_chat_action(
-        chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_DOCUMENT)
-    for file_name in os.listdir(s_path.SHAREX):
-        file_path = os.path.join(s_path.SHAREX, file_name)
+        chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_PHOTO)
+    for file_name in os.listdir(s_path.SCREENPATH):
+        file_path = os.path.join(s_path.SCREENPATH, file_name)
         os.remove(file_path)
-    pyautogui.keyDown(key)
-    pyautogui.press('prntscrn')
-    pyautogui.keyUp(key)
-    time.sleep(0.15)
-    for filename in os.listdir(s_path.SHAREX):
+    if key in range(-1, 2):
+        sct = mss.mss()
+        file = sct.shot(
+            mon=key, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
+    elif key == None:
+        active_window = gw.getActiveWindow()
+        x, y, width, height = active_window.left, active_window.top, active_window.width, active_window.height
+        with mss.mss() as sct:
+            monitor = {"left": x, "top": y, "width": width, "height": height}
+            screenshot = sct.grab(monitor)
+            mss.tools.to_png(screenshot.rgb, screenshot.size, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
+    print(key)
+    for filename in os.listdir(s_path.SCREENPATH):
         photo_message = context.bot.send_photo(chat_id=update.effective_chat.id,
                                                photo=open(os.path.join(
-                                                   s_path.SHAREX, filename), 'rb'),
-                                               reply_markup=InlineKeyboardMarkup([[
-                                                   InlineKeyboardButton(text="Удалить",
-                                                                        callback_data=f"scrn_del:{filename}")
-                                               ]]))
+                                                   s_path.SCREENPATH, filename), 'rb'),
+                                               reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Удалить", 
+                                                                                                        callback_data=f"scrn_del:{filename}")]]))
         # сохраняем ID сообщения в UserDict
         context.user_data[filename] = photo_message.message_id
     if read_db_cell("sound_status") == 1:
@@ -139,7 +146,7 @@ def time_to_upd(upd_time, cur_time):
 def explorer_fix():
     os.system(f"{KILL} explorer.exe")
     os.system("start explorer.exe")
-    
+
 
 def check_health():
     while True:
@@ -160,7 +167,7 @@ def computer_menu(update, context):
                  InlineKeyboardButton("🔒 VPN", callback_data='vpn')],
                 [InlineKeyboardButton("📷 Экран", callback_data='screen'),
                  InlineKeyboardButton("📋 Буфер обмена", callback_data='clipboard')],
-                [InlineKeyboardButton("🏃‍♂️ Состояние", callback_data='health'), 
+                [InlineKeyboardButton("🏃‍♂️ Состояние", callback_data='health'),
                  InlineKeyboardButton("⚠ Питание", callback_data='power')],
                 [InlineKeyboardButton(
                     "📊 Дополнительно", callback_data='additional_pc_menu')],
@@ -311,9 +318,10 @@ def screen_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [
-        [InlineKeyboardButton("◼️", callback_data='scrn_full'),
-         InlineKeyboardButton("◾️", callback_data='scrn_mon'),
-         InlineKeyboardButton("▪️", callback_data='scrn_app')]]
+        [InlineKeyboardButton("🔳", callback_data='scrn_full')],
+        [InlineKeyboardButton("1️⃣", callback_data='scrn_1'),
+         InlineKeyboardButton("2️⃣", callback_data='scrn_2')],
+        [InlineKeyboardButton("◾", callback_data='scrn_app')]]
 
     if read_db_cell("hints_status") == 1:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
@@ -341,8 +349,8 @@ def clipboard_menu(update, context):
     query.edit_message_text(text=f"{filler}📋 *Буфер обмена*",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
-    
-    
+
+
 def health_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
@@ -353,14 +361,15 @@ RAM: {read_db_cell("pc_health_check", "ram")}%
     '''
     mes = mes.replace(".", r"\.")
     keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+                 InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}🏃‍♂️ *Состояние*{mod_fix()}{mes}",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
     if read_db_cell("updater_status") == 0:
         write_db_cell("updater_status", 1)
-        thread_make("updater_health", menu_updater, health_menu, update, context)
+        thread_make("updater_health", menu_updater,
+                    health_menu, update, context)
 
 
 def additional_pc_menu(update, context):

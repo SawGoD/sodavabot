@@ -8,6 +8,8 @@ echo pip install pyautogui >> packages.ps1
 echo pip install pyperclip >> packages.ps1
 echo pip install python-dotenv >> packages.ps1
 echo pip install pyglet >> packages.ps1
+echo pip install mss >> packages.ps1
+echo pip install pygetwindow >> packages.ps1
 
 powershell.exe -ExecutionPolicy Bypass -File ".\packages.ps1"
 del packages.ps1

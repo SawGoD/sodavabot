@@ -192,10 +192,6 @@ def button(update, context):
                 if message_id:
                     context.bot.delete_message(
                         chat_id=update.effective_chat.id, message_id=message_id)
-                    # удаляем запись из UserDict
-                    del context.user_data[file_name]
-                # удаляем файл скриншота
-                os.remove(os.path.join(s_path.SHAREX, file_name))
 
             elif query.data.startswith('text_del:'):
                 message_id = int(query.data.split(":")[1])
@@ -203,6 +199,8 @@ def button(update, context):
                     chat_id=update.effective_chat.id, message_id=message_id)
 
         elif query.data == 'get_copy':
+            context.bot.send_chat_action(
+                chat_id=update.effective_chat.id, action=ChatAction.TYPING)
             clipboard_content = pyperclip.paste()
             message_text = f"`{clipboard_content}`"
             # message_text += "Нажмите кнопку \"Удалить\", чтобы удалить это сообщение"
