@@ -38,7 +38,6 @@ STEAMCMD = fr'{STEAM}\steamcmd.exe'
 INCOGNITO = f'"{BROWSER}" --private'
 NIRCMD = fr'{DEFPATH}/resource/nircmd.exe'
 
-SHAREX = fr'{DEFPATH}\resource\ShareX\full_screen'
 SCREENPATH = fr'{DEFPATH}\resource\screenshots'
 
 VPN_ON = fr'"{VPN_PATH}" --connect LT-Vilnius.ovpn'

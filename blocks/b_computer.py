@@ -92,10 +92,12 @@ def set_output_device(device, query):
 def take_screenshot(key, context, update):
     context.bot.send_chat_action(
         chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_PHOTO)
+    if not os.path.exists(s_path.SCREENPATH):
+        os.makedirs(s_path.SCREENPATH)
     for file_name in os.listdir(s_path.SCREENPATH):
         file_path = os.path.join(s_path.SCREENPATH, file_name)
         os.remove(file_path)
-    if key in range(-1, 2):
+    if key in range(-1, 3):
         sct = mss.mss()
         file = sct.shot(
             mon=key, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
@@ -106,7 +108,6 @@ def take_screenshot(key, context, update):
             monitor = {"left": x, "top": y, "width": width, "height": height}
             screenshot = sct.grab(monitor)
             mss.tools.to_png(screenshot.rgb, screenshot.size, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
-    print(key)
     for filename in os.listdir(s_path.SCREENPATH):
         photo_message = context.bot.send_photo(chat_id=update.effective_chat.id,
                                                photo=open(os.path.join(
