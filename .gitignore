@@ -9,7 +9,8 @@ data/s_connection.json
 data/s_main_db.json
 logs/error_py.txt
 logs/error_bat.txt
-resource/ShareX/cfg/ShareX-15.0.0-backup.sxb
+resource/ShareX
+resource/screenshots/*
 
 .env
 Soda_VA_BOT.code-workspace
