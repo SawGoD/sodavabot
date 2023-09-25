@@ -2,7 +2,7 @@ import telegram
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
 from blocks.s_path import filler
-
+from blocks.u_handle_db import write_db_cell
 
 multi = '''*Мультимедиа*
 
@@ -37,6 +37,17 @@ power = '''*Питание*
 🙈 - выключение мониторов
 '''
 
+clipboard = '''*Буфер обмена*
+
+🗑️ - Очистить буфер обмена
+🔗 - Открыть ссылку из буфера
+
+Чтобы отправить текст в буфер обмена, просто напишите сообщение боту в любом пункте меню\.
+
+Кол-во символов для получения/отправки:
+До: 4030/4096
+'''
+
 
 additional_pc_menu = '''*Дополнительно*
 
@@ -45,6 +56,8 @@ additional_pc_menu = '''*Дополнительно*
 
 
 def hints_menu(update, context):
+    write_db_cell("pc_health_check", 0, "check_status")
+    write_db_cell("updater_status", 0)
     query = update.callback_query
     user_id = str(query.message.chat_id)
     if query.data == 'hints_power':
@@ -56,6 +69,9 @@ def hints_menu(update, context):
     elif query.data == 'hints_multi':
         back = 'multi'
         mes = multi
+    elif query.data == 'hints_clipboard_menu':
+        back = 'clipboard'
+        mes = clipboard
     elif query.data == 'hints_additional_pc_menu':
         back = 'additional_pc_menu'
         mes = additional_pc_menu

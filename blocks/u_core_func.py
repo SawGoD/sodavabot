@@ -52,8 +52,8 @@ def handle_text(update, context):
                     r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
                 message_text = urls[0]
                 os.system(f'{s_path.BROWSER} "{message_text}"')
-            elif read_db_cell("handle_type") == 'clipboard':
-                pyperclip.copy(message_text)
+            # elif read_db_cell("handle_type") == 'clipboard':
+            #     pyperclip.copy(message_text)
             elif read_db_cell("handle_type") == 'game':
                 def get_appid(name):
                     url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"

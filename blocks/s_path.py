@@ -76,7 +76,8 @@ menu_buttons = {
 }
 
 dict_short_cmds = {
-    'explorer_fix': 'explorer_fix()'
+    'explorer_fix': 'explorer_fix()',
+    'clear_clipboard': 'pyperclip.copy("")'
 }
 
 dict_text_cmd = {

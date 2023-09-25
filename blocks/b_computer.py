@@ -1,18 +1,20 @@
 import datetime
 import json
 import os
+import re
 import socket
 import subprocess
 import threading
 import time
 
 import keyboard
+import mss
 import psutil
 import pyautogui
 import pygetwindow as gw
+import pyperclip
 import telegram
 from dotenv import load_dotenv
-import mss
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
 import blocks.u_common_func
@@ -107,12 +109,13 @@ def take_screenshot(key, context, update):
         with mss.mss() as sct:
             monitor = {"left": x, "top": y, "width": width, "height": height}
             screenshot = sct.grab(monitor)
-            mss.tools.to_png(screenshot.rgb, screenshot.size, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
+            mss.tools.to_png(screenshot.rgb, screenshot.size,
+                             output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
     for filename in os.listdir(s_path.SCREENPATH):
         photo_message = context.bot.send_photo(chat_id=update.effective_chat.id,
                                                photo=open(os.path.join(
                                                    s_path.SCREENPATH, filename), 'rb'),
-                                               reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Удалить", 
+                                               reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Удалить",
                                                                                                         callback_data=f"scrn_del:{filename}")]]))
         # сохраняем ID сообщения в UserDict
         context.user_data[filename] = photo_message.message_id
@@ -341,15 +344,36 @@ def screen_menu(update, context):
 def clipboard_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
+    link = None
+    if pyperclip.paste():
+        mes = pyperclip.paste()
+        if re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', mes):
+            link = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', mes)[0]
+            link = re.sub(r'[\]\),\']', '', link)
+    else:
+        mes = "Пусто"
     keyboard = [
-        [InlineKeyboardButton("📤 Отправить", callback_data='get_paste'),
-         InlineKeyboardButton("Получить 📥", callback_data='get_copy')],
-        [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
-         InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+        [InlineKeyboardButton("🗑️ Очистить", callback_data='clear_clipboard')]]
+    # [InlineKeyboardButton("📤 Отправить", callback_data='get_paste'),
+    #  InlineKeyboardButton("Получить 📥", callback_data='get_copy')],
+    if link is not None:
+        keyboard.append([InlineKeyboardButton("🔗 Ссылка", url=link)])
+    if read_db_cell("hints_status") == 1:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton(
+                            "💡", callback_data='hints_clipboard_menu'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    else:
+        keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+                        InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(text=f"{filler}📋 *Буфер обмена*",
+    query.edit_message_text(text=f"{filler}📋 *Буфер обмена*{mod_fix()}\n`{mes}`",
                             reply_markup=reply_markup,
                             parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    if read_db_cell("updater_status") == 0:
+        write_db_cell("updater_status", 1)
+        thread_make("updater_speed", menu_updater,
+                    clipboard_menu, update, context)
 
 
 def health_menu(update, context):
