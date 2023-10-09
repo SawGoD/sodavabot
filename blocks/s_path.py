@@ -149,8 +149,15 @@ multi_act = {
 scr_keys = {
     'scrn_app': None,
     'scrn_full': -1,
-    'scrn_1': 1,
-    'scrn_2': 2
+    'scrn_1': 1, 'scrn_2': 2, 'scrn_3': 3,
+    'scrn_4': 4, 'scrn_5': 5, 'scrn_6': 6,
+    'scrn_7': 7, 'scrn_8': 8, 'scrn_9': 9
+}
+
+dict_of_num = {
+    1: "1️⃣", 2: "2️⃣", 3: "3️⃣", 
+    4: "4️⃣", 5: "5️⃣", 6: "6️⃣", 
+    7: "7️⃣", 8: "8️⃣", 9: "9️⃣"
 }
 
 

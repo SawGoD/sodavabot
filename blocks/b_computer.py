@@ -13,6 +13,7 @@ import psutil
 import pyautogui
 import pygetwindow as gw
 import pyperclip
+import screeninfo
 import telegram
 from dotenv import load_dotenv
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,7 +22,7 @@ import blocks.u_common_func
 from blocks import s_path, u_send_logs
 from blocks.s_path import (DEFPATH, KILL, SPEAK_HEAD_A, SPEAK_HEAD_H,
                            SPEAK_HEAD_S, SPEAK_MON_L, SPEAK_MON_R, SVCL,
-                           filler)
+                           dict_of_num, filler)
 from blocks.u_common_func import (clock, menu_updater, mod_fix, sound_alert,
                                   thread_make, user_input)
 from blocks.u_handle_db import read_db_cell, write_db_cell
@@ -99,7 +100,7 @@ def take_screenshot(key, context, update):
     for file_name in os.listdir(s_path.SCREENPATH):
         file_path = os.path.join(s_path.SCREENPATH, file_name)
         os.remove(file_path)
-    if key in range(-1, 3):
+    if key in range(-1, 9):
         sct = mss.mss()
         file = sct.shot(
             mon=key, output=f'{s_path.SCREENPATH}/screen_{mod_fix(mod_type="name")}.png')
@@ -321,11 +322,14 @@ def power_menu(update, context):
 def screen_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
+    num_monitors = len(screeninfo.get_monitors())
     keyboard = [
-        [InlineKeyboardButton("🔳", callback_data='scrn_full')],
-        [InlineKeyboardButton("1️⃣", callback_data='scrn_1'),
-         InlineKeyboardButton("2️⃣", callback_data='scrn_2')],
-        [InlineKeyboardButton("◾", callback_data='scrn_app')]]
+        [InlineKeyboardButton("🔳", callback_data='scrn_full')]]
+    keyboard_add = []
+    for i in range(1, num_monitors + 1):
+        keyboard_add.append(InlineKeyboardButton(f"{dict_of_num[i]}", callback_data=f'scrn_{i}'))
+    keyboard.append(keyboard_add)
+    keyboard.append([InlineKeyboardButton("◾", callback_data='scrn_app')])
 
     if read_db_cell("hints_status") == 1:
         keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='computer'),
