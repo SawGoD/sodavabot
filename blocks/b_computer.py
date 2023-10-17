@@ -351,15 +351,16 @@ def clipboard_menu(update, context):
     link = None
     if pyperclip.paste():
         mes = pyperclip.paste()
+        if len(mes) > 4030:
+            mes = mes[:4030]
         if re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', mes):
             link = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', mes)[0]
             link = re.sub(r'[\]\),\']', '', link)
     else:
         mes = "Пусто"
+    mes = mes.replace('{', '\{').replace('}', '\}')
     keyboard = [
         [InlineKeyboardButton("🗑️ Очистить", callback_data='clear_clipboard')]]
-    # [InlineKeyboardButton("📤 Отправить", callback_data='get_paste'),
-    #  InlineKeyboardButton("Получить 📥", callback_data='get_copy')],
     if link is not None:
         keyboard.append([InlineKeyboardButton("🔗 Ссылка", url=link)])
     if read_db_cell("hints_status") == 1:

@@ -52,8 +52,6 @@ def handle_text(update, context):
                     r'https?://[^\s<>"]+|www\.[^\s<>"]+', message_text)
                 message_text = urls[0]
                 os.system(f'{s_path.BROWSER} "{message_text}"')
-            # elif read_db_cell("handle_type") == 'clipboard':
-            #     pyperclip.copy(message_text)
             elif read_db_cell("handle_type") == 'game':
                 def get_appid(name):
                     url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"
@@ -197,22 +195,13 @@ def button(update, context):
                 message_id = int(query.data.split(":")[1])
                 bot.delete_message(
                     chat_id=update.effective_chat.id, message_id=message_id)
-
-        elif query.data == 'get_copy':
-            context.bot.send_chat_action(
-                chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-            clipboard_content = pyperclip.paste()
-            message_text = f"`{clipboard_content}`"
-            # message_text += "Нажмите кнопку \"Удалить\", чтобы удалить это сообщение"
-            message = bot.send_message(chat_id=update.effective_chat.id, text=message_text,
-                                       parse_mode=telegram.ParseMode.MARKDOWN)
-            keyboard = [[InlineKeyboardButton(
-                "Удалить", callback_data=f"text_del:{message.message_id}")]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            bot.edit_message_reply_markup(
-                chat_id=update.effective_chat.id,
-                message_id=message.message_id,
-                reply_markup=reply_markup)
+        elif query.data == 'clipboard':
+            try:
+                clipboard_menu(update, context)
+            except: 
+                pyperclip.copy("")
+                query.answer(text='Не удалось получить содержимое буфера')
+                clipboard_menu(update, context)
 
         elif query.data == 'con_speed':
             query.answer(text='Автообновление каждые 30 секунд')

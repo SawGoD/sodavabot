@@ -61,7 +61,6 @@ menu_buttons = {
     'bot_changes_upd': 'bot_changes(update, context)',
 
     'multi': 'multi_menu(update, context)',
-    'clipboard': 'clipboard_menu(update, context)',
     'health': 'health_menu(update, context)',
     'additional_pc_menu': 'additional_pc_menu(update, context)',
     
