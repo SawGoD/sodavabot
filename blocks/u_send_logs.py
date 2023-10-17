@@ -12,6 +12,23 @@ TOKEN = os.getenv('BOT_TOKEN')
 bot = telegram.Bot(token=TOKEN)
 
 
+def log_start_tg():
+    """
+    Функция для логирования начала работы бота.
+    """
+    daten, timen = clock()
+    username_ment = "FAKE_SGD"
+    username_ment = f"@{username_ment}!".replace(
+        '_', r'\_').replace('*', r'\*').replace('!', r'\!')
+    
+    log_message = f"""
+*Лог:* {username_ment}
+    Бот запущен
+    *• Время:* _{timen}_
+"""
+    bot.send_message(chat_id=os.getenv('LOG_OUTPUT'), text=log_message,
+                         parse_mode=telegram.ParseMode.MARKDOWN_V2)
+
 def log_form_tg(update, context, cmd=None, effect=True, alert=None):
     """
     Функция для логирования информации о пользователе и команде в Telegram.
@@ -51,14 +68,15 @@ def log_form_tg(update, context, cmd=None, effect=True, alert=None):
         else:
             user_log = f"[{user.first_name} {user.last_name}](tg://openmessage?user_id={user_id})"
         time_log = timen
-        log_message = fr'''
+        log_message = f"""
 *Лог:* {username_ment}
+    Команда: `{query_log}`
     *• Пользователь:* {user_log}
+    *• ID:* `{user_id}`
     *• Время:* _{time_log}_
-    *• Команда:* `{query_log}`
     *• Доступ:* _{"Есть" if effect else "Нет"}_
 [{filler}](https://t.me/{context.bot.username})
-'''
+"""     
         if user_id in os.getenv('LOG_IGNORED_USERS'):
             pass
         else:

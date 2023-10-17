@@ -37,6 +37,7 @@ def main():
             dp.add_handler(CallbackQueryHandler(button))
             dp.add_handler(MessageHandler(
                 Filters.text, handle_text, run_async=True))
+            u_send_logs.log_start_tg()
             updater.start_polling()
             updater.idle()
             pass
@@ -52,7 +53,6 @@ def main():
                                      action="Ожидание перезапуска")
         except Exception as e:
             sys.stderr.write(str(e))
-
 
 if __name__ == '__main__':
     main()

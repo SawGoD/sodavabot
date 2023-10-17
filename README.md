@@ -1,4 +1,4 @@
-# SODA VA BOT v8.09b
+# SODA VA BOT v8.17b
 <!-- 2023      Март, апрель, май, июнь, июль, август, сентябрь, октябрь -->
 ![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Montserrat&weight=500&size=25&duration=2800&pause=800&color=DC143C&vCenter=true&width=500&height=30&lines=S+U+T+I+V+I+S+M+Project.;.)
 
