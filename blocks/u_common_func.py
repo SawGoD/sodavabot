@@ -45,7 +45,6 @@ def ver_greet():
     print("Дата:", daten)
     print("Время:", timen)
     print("==================")
-    print(f'Компьютер: {read_db_cell("cur_pc")[5:]}')
     if read_db_cell("sound_status") == 1:
         sound_alert("sound_greet.mp3")
 

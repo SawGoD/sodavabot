@@ -11,22 +11,11 @@ time.sleep(0.15)
 
 SPEAK_MON_L, SPEAK_MON_R, SPEAK_HEAD_S, SPEAK_HEAD_A, SPEAK_HEAD_H = "", "", "", "", ""
 
-if read_db_cell("pc") == 1:     # Рабочий ПК
-    SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds Stereo)", \
-        "{0.0.0.00000000}.{03e928b3-a42f-4a88-b7e5-f3c66adb1f11}"
-    SPEAK_MON_R = "Динамики (2- High Definition Audio Device)",\
-        "{0.0.0.00000000}.{69f9cfe0-7cb7-4517-96ed-a816a26655f3}"
-    SPEAK_MON_L = "BenQ EW2775ZH (Аудио Intel(R) для дисплеев)",\
-        "{0.0.0.00000000}.{129de811-bfb3-4a98-96d3-0867c3ab5906}"
-elif read_db_cell("pc") == 2:   # Домашний ПК
-    SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds)", \
-        "{0.0.0.00000000}.{5f0d3099-ef36-4600-af3a-ea4f1886dedd}"
-    SPEAK_HEAD_S = "Headset (2- SB Tactic3D Rage Wireless)",\
-        "{0.0.0.00000000}.{93389548-8b7a-48a2-bd56-7c3ac4101744}"
-    SPEAK_HEAD_A = "Bloody G575 (3- USB Audio Device)", \
-        "{0.0.0.00000000}.{838b3556-45e2-4242-a1f9-428fa1b06433}"
-    SPEAK_MON_R = "DELL S2316H (NVIDIA High Definition Audio)",\
-        "{0.0.0.00000000}.{1a6e09ed-9668-41da-b347-a5ce8fb88003}"
+
+SPEAK_HEAD_H = "Наушники (HONOR Magic Earbuds)"
+SPEAK_HEAD_S = "Headset (3- SB Tactic3D Rage Wireless)"
+SPEAK_HEAD_A = "Bloody G575 (3- USB Audio Device)"
+SPEAK_MON_R = "DELL S2316H (NVIDIA High Definition Audio)"
 
 DEFPATH = r'C:\Soda_VA_BOT'
 
@@ -62,6 +51,7 @@ menu_buttons = {
 
     'multi': 'multi_menu(update, context)',
     'health': 'health_menu(update, context)',
+    'memory': 'memory_menu(update, context)',
     'additional_pc_menu': 'additional_pc_menu(update, context)',
     
     'op_tabs': 'tabs_menu(update, context)',
@@ -178,4 +168,4 @@ tabs_hotkeys = {
     'tab_return': ('ctrl', 'shift', 't')
 }
 
-filler = '==================================\n'.replace('=', r'\=')
+filler = '==================================\n'.replace('=', r'\=') # 34 символа

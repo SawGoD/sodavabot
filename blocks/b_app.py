@@ -12,10 +12,8 @@ def app_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🌐 Opera", callback_data='opera')],
-                [InlineKeyboardButton("🕹️ Steam", callback_data='steam')]]
-    if read_db_cell("pc", None) == 2:
-        keyboard.append([InlineKeyboardButton(
-            "🎨️ Stable Diffusion", callback_data='sdai')])
+                [InlineKeyboardButton("🕹️ Steam", callback_data='steam')],
+                [InlineKeyboardButton("🎨️ Stable Diffusion", callback_data='sdai')]]
     keyboard += [[InlineKeyboardButton("🚀 Скрипты", callback_data='script')],
                  [InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)

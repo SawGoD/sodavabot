@@ -6,6 +6,8 @@ import socket
 import subprocess
 import threading
 import time
+import shutil
+import string
 
 import keyboard
 import mss
@@ -15,6 +17,14 @@ import pygetwindow as gw
 import pyperclip
 import screeninfo
 import telegram
+
+import pycaw.pycaw as pycaw # ! новая библиотека pycaw
+import win32gui # ! новая библиотека pywin32
+from ctypes import cast, POINTER
+import comtypes
+from comtypes import CLSCTX_ALL # ! новая библиотека comtypes
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
 from dotenv import load_dotenv
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -35,64 +45,45 @@ s_con_path = "s_connection.json"
 
 
 def get_volume():
-    if read_db_cell("output_device",) == "headphones_h":
-        keys = [SPEAK_HEAD_H[1], "head_h"]
-    elif read_db_cell("output_device") == "headphones_s":
-        keys = [SPEAK_HEAD_S[1], "head_s"]
-    elif read_db_cell("output_device") == "headphones_a":
-        keys = [SPEAK_HEAD_A[1], "head_a"]
-    elif read_db_cell("output_device") == "monitor_r":
-        keys = [SPEAK_MON_R[1], "mon_r"]
-    elif read_db_cell("output_device") == "monitor_l":
-        keys = [SPEAK_MON_L[1], "mon_l"]
-    else:
-        return
-
     try:
-        vol = int(round(float(subprocess.check_output(
-            f"{SVCL} {keys[0]}".split()).decode('utf-8').strip())))
-    except ValueError:
+        comtypes.CoInitialize()
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = cast(interface, POINTER(IAudioEndpointVolume))
+        current_volume = volume.GetMasterVolumeLevelScalar() * 100
+        vol = f"{current_volume:.0f}"
+    except:
         vol = 0
-    write_db_cell("volume", vol, keys[1])
+        
+    write_db_cell("volume", vol, read_db_cell("output_device"))
 
 
 def set_output_device(device, query):
-    os.system(f'{s_path.SETDEVDEF} {device[0]}')
-    os.system(f'{s_path.SETDEVDEFCOMM} {device[0]}')
-    device_name = ''
-    if read_db_cell("pc", None) == 1:
-        device_name = "headphones_h" if device == SPEAK_HEAD_H \
-            else "monitor_r" if device == SPEAK_MON_R \
-            else "monitor_l" if device == SPEAK_MON_L \
-            else "none"
-        current_markup = query.message.reply_markup
-        current_markup.inline_keyboard[0][
-            0].text = f"🌀 {read_db_cell('volume', 'head_h')} {'🟢' if device == SPEAK_HEAD_H else '⚫️'}"
-        current_markup.inline_keyboard[0][
-            1].text = f"{'🟢' if device == SPEAK_MON_R else '⚫️'} {read_db_cell('volume', 'mon_r')} 🖥"
-        current_markup.inline_keyboard[1][
-            0].text = f"{'🟢' if device == SPEAK_MON_L else '⚫️'} {read_db_cell('volume', 'mon_l')} 🖥"
-        query.edit_message_reply_markup(reply_markup=current_markup)
-    elif read_db_cell("pc", None) == 2:
-        device_name = "headphones_h" if device == SPEAK_HEAD_H \
+    os.system(f'{s_path.SETDEVDEF} {device}')
+    os.system(f'{s_path.SETDEVDEFCOMM} {device}')
+    device_name = "headphones_h" if device == SPEAK_HEAD_H \
             else "headphones_s" if device == SPEAK_HEAD_S \
             else "headphones_a" if device == SPEAK_HEAD_A \
             else "monitor_r" if device == SPEAK_MON_R \
             else "none"
-        current_markup = query.message.reply_markup
-        current_markup.inline_keyboard[0][
-            0].text = f"🌀 {read_db_cell('volume', 'head_h')} {'🟢' if device == SPEAK_HEAD_H else '⚫️'}"
-        current_markup.inline_keyboard[0][
-            1].text = f"{'🟢' if device == SPEAK_MON_R else '⚫️'} {read_db_cell('volume', 'mon_r')} 🖥"
-        current_markup.inline_keyboard[1][
-            0].text = f"🎸 {read_db_cell('volume', 'head_s')} {'🟢' if device == SPEAK_HEAD_S else '⚫️'}"
-        current_markup.inline_keyboard[1][
-            1].text = f"{'🟢' if device == SPEAK_HEAD_A else '⚫️'} {read_db_cell('volume', 'head_a')} 🩸"
-        query.edit_message_reply_markup(reply_markup=current_markup)
+    current_markup = query.message.reply_markup
+    current_markup.inline_keyboard[0][
+        0].text = f"🌀 {read_db_cell('volume', 'headphones_h')} {'🟢' if device == SPEAK_HEAD_H else '⚫️'}"
+    current_markup.inline_keyboard[0][
+        1].text = f"{'🟢' if device == SPEAK_MON_R else '⚫️'} {read_db_cell('volume', 'monitor_r')} 🖥"
+    current_markup.inline_keyboard[1][
+        0].text = f"🎸 {read_db_cell('volume', 'headphones_s')} {'🟢' if device == SPEAK_HEAD_S else '⚫️'}"
+    current_markup.inline_keyboard[1][
+        1].text = f"{'🟢' if device == SPEAK_HEAD_A else '⚫️'} {read_db_cell('volume', 'headphones_a')} 🩸"
+    query.edit_message_reply_markup(reply_markup=current_markup)
     write_db_cell("output_device", device_name)
 
 
 def take_screenshot(key, context, update):
+    window = win32gui.GetForegroundWindow()
+    title = win32gui.GetWindowText(window)
+    title = None if title == "" else f"*Активное окно*: `{title}`"
+
     context.bot.send_chat_action(
         chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_PHOTO)
     if not os.path.exists(s_path.SCREENPATH):
@@ -116,6 +107,8 @@ def take_screenshot(key, context, update):
         photo_message = context.bot.send_photo(chat_id=update.effective_chat.id,
                                                photo=open(os.path.join(
                                                    s_path.SCREENPATH, filename), 'rb'),
+                                               caption=title,  # Добавлен заголовок к фото
+                                               parse_mode=telegram.ParseMode.MARKDOWN_V2,
                                                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Удалить",
                                                                                                         callback_data=f"scrn_del:{filename}")]]))
         # сохраняем ID сообщения в UserDict
@@ -125,18 +118,29 @@ def take_screenshot(key, context, update):
 
 
 def speed_test():
-    u_send_logs.log_form_cmd(update=None, context=None,
-                             cmd=speed_test.__name__,
-                             action="запущен", effect=True)
+    if read_db_cell("speedtest_status") == 1:
+        u_send_logs.log_form_cmd(update=None, context=None,
+                                cmd=speed_test.__name__,
+                                action="запущен", effect=True)
+    elif read_db_cell("speedtest_status") == 0:
+        u_send_logs.log_form_cmd(update=None, context=None,
+                                cmd=speed_test.__name__,
+                                action="запущен", effect=False)
     while True:
-        p = subprocess.Popen(
-            fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
-            shell=True, text=True)
-        time.sleep(30)
-        result = p.communicate()[0]
-        with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
-            f.write(result)
+        if read_db_cell("speedtest_status") == 1:
+            p = subprocess.Popen(
+                fr'"{DEFPATH}\resource\speedtest.exe" --format=json',
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,  # Перенаправляем stderr в stdout
+                shell=True, text=True)
+            time.sleep(30)
+            result = p.communicate()[0]
+            with open(fr'{DEFPATH}\data\s_connection.json', 'w') as f:
+                f.write(result)
+        elif read_db_cell("speedtest_status") == 0:
+            try:
+                os.system("taskkill /F /IM speedtest.exe > nul 2>&1")
+            except Exception as e:
+                pass
 
 
 def time_to_upd(upd_time, cur_time):
@@ -160,7 +164,62 @@ def check_health():
             write_db_cell("pc_health_check", cpu_percent, "cpu")
             memory = psutil.virtual_memory()
             write_db_cell("pc_health_check", memory.percent, "ram")
+            
 
+def check_memory(disk_symbol=None):
+    if disk_symbol is None:
+        disk_info = ""
+        for letter in string.ascii_uppercase:
+            try:
+                total, used, free = shutil.disk_usage(f"{letter}:\\")
+                total_gb = total / (1024**3)
+                used_gb = used / (1024**3)
+                free_gb = free / (1024**3)
+                disk_info += f"*Диск {letter}*: `{used_gb:.2f}` ГБ / `{total_gb:.2f}` ГБ\n"
+            except FileNotFoundError:
+                pass
+        return disk_info
+    else:
+        try:
+            total, used, free = shutil.disk_usage(f"{disk_symbol.upper()}:\\")
+            used_mem = used / (total / 100)
+            disk_info = f"{used_mem:.2f}"
+        except FileNotFoundError:
+            disk_info = f"0"
+        return disk_info
+    
+
+def memory_stats(clear_flag=False):
+
+    temp_files_paths = {
+        'appdata_temp_path': os.path.expanduser('~') + "\\AppData\\Local\\Temp",
+        'win_temp_path': os.path.join("C:\Windows\Temp"),
+        'recycle_bin_path': os.path.join("C:\$Recycle.bin"),
+    }
+    
+    if not clear_flag:
+        total_size = 0
+
+        for path_key, path_value in temp_files_paths.items():
+            for dirpath, dirnames, filenames in os.walk(path_value):
+                for f in filenames:
+                    fp = os.path.join(dirpath, f)
+                    total_size += os.path.getsize(fp)
+
+        total_size_gb = total_size / (1024**3)  # переводим размер в гигабайты
+        return f"{total_size_gb:.2f}"
+    elif clear_flag:
+        for path_key, path_value in temp_files_paths.items():
+            for dirpath, dirnames, filenames in os.walk(path_value):
+                for item in dirnames + filenames:
+                    item_path = os.path.join(dirpath, item)
+                    try:
+                        if os.path.isdir(item_path):
+                            shutil.rmtree(item_path)
+                        else:
+                            os.remove(item_path)
+                    except:
+                        pass
 
 def computer_menu(update, context):
     user_input(0, "none")
@@ -188,25 +247,22 @@ def multi_menu(update, context):
     user_id = str(query.message.chat_id)
     get_volume()
     keyboard = [
-        [InlineKeyboardButton(f"🌀 {read_db_cell('volume', 'head_h')} "
+        [InlineKeyboardButton(f"🌀 {read_db_cell('volume', 'headphones_h')} "
                               f"{'🟢' if read_db_cell('output_device') == 'headphones_h' else '⚫'}",
                               callback_data='set_dev_head_h'),
          InlineKeyboardButton(f"{'🟢' if read_db_cell('output_device') == 'monitor_r' else '⚫'} "
-                              f"{read_db_cell('volume', 'mon_r')} 🖥",
+                              f"{read_db_cell('volume', 'monitor_r')} 🖥",
                               callback_data='set_dev_mon_r')]]
-    if read_db_cell("pc", None) == 1:
-        keyboard.append([InlineKeyboardButton(f"{'🟢' if read_db_cell('output_device') == 'monitor_l' else '⚫'} "
-                                              f"{read_db_cell('volume', 'mon_l')} 🖥",
-                                              callback_data='set_dev_mon_l')])
-    elif read_db_cell("pc", None) == 2:
-        keyboard.append([InlineKeyboardButton(
-            f"🎸 {read_db_cell('volume', 'head_s')} "
-            f"{'🟢' if read_db_cell('output_device') == 'headphones_s' else '⚫'}",
-            callback_data='set_dev_head_s'),
-            InlineKeyboardButton(
-                f"{'🟢' if read_db_cell('output_device') == 'headphones_a' else '⚫'} "
-                f"{read_db_cell('volume', 'head_a')} 🩸",
-                callback_data='set_dev_head_a')])
+
+    keyboard.append([InlineKeyboardButton(
+        f"🎸 {read_db_cell('volume', 'headphones_s')} "
+        f"{'🟢' if read_db_cell('output_device') == 'headphones_s' else '⚫'}",
+        callback_data='set_dev_head_s'),
+        InlineKeyboardButton(
+            f"{'🟢' if read_db_cell('output_device') == 'headphones_a' else '⚫'} "
+            f"{read_db_cell('volume', 'headphones_a')} 🩸",
+            callback_data='set_dev_head_a')])
+        
     keyboard += [
                 [InlineKeyboardButton("⏪", callback_data='multi_pull'),
                  InlineKeyboardButton("⏯", callback_data='multi_on_off'),
@@ -358,7 +414,7 @@ def clipboard_menu(update, context):
             link = re.sub(r'[\]\),\']', '', link)
     else:
         mes = "Пусто"
-    mes = mes.replace('{', '\{').replace('}', '\}')
+    mes = mes.replace('{', '\{').replace('}', '\}').replace('\\', r"\\")
     keyboard = [
         [InlineKeyboardButton("🗑️ Очистить", callback_data='clear_clipboard')]]
     if link is not None:
@@ -385,12 +441,18 @@ def health_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
     write_db_cell("pc_health_check", 1, "check_status")
-    mes = f'''
-CPU: {read_db_cell("pc_health_check", "cpu")}%
-RAM: {read_db_cell("pc_health_check", "ram")}%
-    '''
+    cpu = read_db_cell("pc_health_check", "cpu")
+    ram = read_db_cell("pc_health_check", "ram")
+    disk_c = check_memory("C")
+    
+    cpu_str = f"*CPU*: `{cpu}`%".ljust(17, ' ')
+    disk_c_str = f"*Диск C*: `{disk_c}`%".center(17, ' ')
+    ram_str = f"*RAM*: `{ram}`%".rjust(17, ' ')
+    
+    mes = f"\n{cpu_str}{disk_c_str}{ram_str}"
     mes = mes.replace(".", r"\.")
-    keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='computer'),
+    keyboard = [[InlineKeyboardButton("💾 Память", callback_data='memory')],
+                [InlineKeyboardButton("🔙 Назад", callback_data='computer'),
                  InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=f"{filler}🏃‍♂️ *Состояние*{mod_fix()}{mes}",
@@ -400,6 +462,41 @@ RAM: {read_db_cell("pc_health_check", "ram")}%
         write_db_cell("updater_status", 1)
         thread_make("updater_health", menu_updater,
                     health_menu, update, context)
+        
+
+def memory_menu(update, context):
+    query = update.callback_query
+    user_id = str(query.message.chat_id)
+    write_db_cell("pc_health_check", 0, "check_status")
+    write_db_cell("updater_status", 0)
+    mes = f'''{check_memory()}'''
+    mes = mes.replace(".", r"\.")
+    keyboard = []
+    keyboard_add = []
+    if float(memory_stats()) > 0.8:
+        keyboard = [[InlineKeyboardButton(f"🗑️ Очистить (C:) {memory_stats()} ГБ", callback_data='clear_memory')],
+            [InlineKeyboardButton("🔙 Назад", callback_data='health'),
+            InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+    else:
+        keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data='health'),
+            InlineKeyboardButton("🔝 Меню", callback_data='mmenu')]]
+        
+        
+    # if read_db_cell("hints_status") == 1:
+    #     keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='health'),
+    #                     InlineKeyboardButton(
+    #                         "💡", callback_data='hints_memory'),
+    #                     InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+    # else:
+    #     keyboard.append([InlineKeyboardButton("🔙 Назад", callback_data='health'),
+                        # InlineKeyboardButton("🔝 Меню", callback_data='mmenu')])
+        
+    
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text=f"{filler}💾 *Память*{mod_fix()}\n{mes}",
+                            reply_markup=reply_markup,
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    
 
 
 def additional_pc_menu(update, context):

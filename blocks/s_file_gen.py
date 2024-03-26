@@ -10,8 +10,6 @@ def create_main_db():
             "log_status": 1,
             "hints_status": 1,
             "updater_status": 0,
-            "pc": 2,
-            "cur_pc": "👩🏻‍💻 Домашний ПК",
             "volume_status": 1,
             "output_device": "",
             "pc_health_check": {
@@ -20,11 +18,11 @@ def create_main_db():
                 "ram": 0
             },
             "volume": {
-                "head_h": 0,
-                "head_s": 0,
-                "head_a": 0,
-                "mon_r": 0,
-                "mon_l": 0
+                "headphones_h": 0,
+                "headphones_s": 0,
+                "headphones_a": 0,
+                "monitor_r": 0,
+                "monitor_l": 0
             },
             "menu_range": {
                 "repo": "sodavabot",

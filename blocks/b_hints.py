@@ -51,10 +51,14 @@ clipboard = '''*Буфер обмена*
 До: 4030/4096
 '''
 
-
 additional_pc_menu = '''*Дополнительно*
 
 🗂️ - перезапуск проводника
+'''
+
+memory = '''*Память*
+
+🗑️ - очистка в папках:
 '''
 
 
@@ -78,6 +82,9 @@ def hints_menu(update, context):
     elif query.data == 'hints_additional_pc_menu':
         back = 'additional_pc_menu'
         mes = additional_pc_menu
+    elif query.data == 'hints_memory':
+        back = 'memory_menu'
+        mex = memory
 
     import re
 

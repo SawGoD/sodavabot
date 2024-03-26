@@ -16,8 +16,9 @@ from blocks.b_app import (app_menu, app_ui, games_menu, scr_eft_menu,
                           scripts_menu, sdai_links_menu, tabs_menu)
 from blocks.b_computer import (additional_pc_menu, clipboard_menu,
                                computer_menu, explorer_fix, health_menu,
-                               multi_menu, power_menu, screen_menu,
-                               set_output_device, take_screenshot, vpn_menu)
+                               memory_menu, memory_stats, multi_menu,
+                               power_menu, screen_menu, set_output_device,
+                               take_screenshot, vpn_menu, get_volume)
 from blocks.b_hints import hints_menu
 from blocks.s_scripts_list import sdb_path
 from blocks.u_common_func import restart_bot, sound_alert, user_input
@@ -154,18 +155,22 @@ def button(update, context):
         elif query.data == 'vol_50':
             query.answer(text='Громкость: 50%')
             os.system(fr'"{s_path.SETVOL}" 50')
+            get_volume()
             multi_menu(update, context)
         elif query.data == 'vol_up10':
             query.answer(text='Громкость увеличена на 10')
             for _ in range(5):
                 pyautogui.press("volumeup")
+                get_volume()
             multi_menu(update, context)
         elif query.data == 'vol_up':
             query.answer(text='Громкость увеличена на 2')
             pyautogui.press("volumeup")
+            get_volume()
             multi_menu(update, context)
         elif query.data == 'vol_down':
             query.answer(text='Громкость уменьшена на 2')
+            get_volume()
             pyautogui.press("volumedown")
             multi_menu(update, context)
         elif query.data == 'vol_on_off':
@@ -198,10 +203,14 @@ def button(update, context):
         elif query.data == 'clipboard':
             try:
                 clipboard_menu(update, context)
-            except: 
+            except:
                 pyperclip.copy("")
                 query.answer(text='Не удалось получить содержимое буфера')
                 clipboard_menu(update, context)
+        elif query.data == 'clear_memory':
+            query.answer(text='Очистка памяти...')
+            memory_stats(clear_flag=True)
+            memory_menu(update, context)
 
         elif query.data == 'con_speed':
             query.answer(text='Автообновление каждые 30 секунд')
@@ -250,18 +259,6 @@ def button(update, context):
                 write_db_cell(f"script_eft_{i}", 0, filename=sdb_path)
             scr_eft_menu(update, context)
 
-        elif query.data == 'sel_pc_1':
-            write_db_cell("pc", 1)
-            write_db_cell("cur_pc", "👨🏻‍💻 Рабочий ПК")
-            query.answer(text='Принудительный перезапуск')
-            bot_about(update, context)
-            restart_bot()
-        elif query.data == 'sel_pc_2':
-            write_db_cell("pc", 2)
-            write_db_cell("cur_pc", "👩🏻‍💻 Домашний ПК")
-            query.answer(text='Принудительный перезапуск')
-            bot_about(update, context)
-            restart_bot()
         elif query.data == 'logger':
             status = 0 if read_db_cell("log_status") == 1 else 1
             write_db_cell(f"log_status", status)
@@ -273,6 +270,10 @@ def button(update, context):
         elif query.data == 'hints':
             status = 0 if read_db_cell("hints_status") == 1 else 1
             write_db_cell(f"hints_status", status)
+            bot_settings(update, context)
+        elif query.data == 'speedtest':
+            status = 0 if read_db_cell("speedtest_status") == 1 else 1
+            write_db_cell(f"speedtest_status", status)
             bot_settings(update, context)
         elif query.data == 'screen_state':
             status = 0 if read_db_cell(

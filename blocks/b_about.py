@@ -57,14 +57,10 @@ def bot_about(update, context):
     # Функция для отображения информации о боте
     query = update.callback_query
     user_id = str(query.message.chat_id)
+    menu_title = "🤖 *О боте*"
     about = fr'''"SODA VA BOT"
-        *Версия бота:* _v{get_version()}_
-        *Сейчас выбран:* _{read_db_cell("cur_pc")}_
-
-Выберите ПК:'''
-    keyboard = [[InlineKeyboardButton("👨🏻‍💻 Work", callback_data='sel_pc_1'),
-                 InlineKeyboardButton("👩🏻‍💻 Home", callback_data='sel_pc_2')],
-                [InlineKeyboardButton(
+*Версия бота:* _v{get_version()}_'''
+    keyboard = [[InlineKeyboardButton(
                     "🆕 Изменения", callback_data='bot_changes')],
                 [InlineKeyboardButton(
                     "⚙️ Настройки", callback_data='bot_settings')],
@@ -84,7 +80,9 @@ def bot_settings(update, context):
                 [InlineKeyboardButton(f"🔔 Звуки {'🟢' if read_db_cell('sound_status') == 1 else '⚫'}",
                                       callback_data='sounds')],
                 [InlineKeyboardButton(f"💡 Подсказки {'🟢' if read_db_cell('hints_status') == 1 else '⚫'}",
-                                      callback_data='hints')]]
+                                      callback_data='hints')],
+                [InlineKeyboardButton(f"📶 Проверка скорости {'🟢' if read_db_cell('speedtest_status') == 1 else '⚫'}",
+                                      callback_data='speedtest')]]
     if user_id in os.getenv('ADMIN_USERS'):
         keyboard.append([InlineKeyboardButton("🛡️ Управление", callback_data='bot_settings_admin')])
     keyboard += [[InlineKeyboardButton("🔙 Назад", callback_data='bot_about'),
