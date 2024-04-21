@@ -8,6 +8,7 @@ test
 data/s_connection.json
 data/s_main_db.json
 logs/error_py.txt
+logs/error_py_old.txt
 logs/error_bat.txt
 resource/ShareX
 resource/screenshots/*
