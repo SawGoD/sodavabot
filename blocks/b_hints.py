@@ -63,7 +63,6 @@ memory = '''*Память*
 
 
 def hints_menu(update, context):
-    write_db_cell("pc_health_check", 0, "check_status")
     write_db_cell("updater_status", 0)
     query = update.callback_query
     user_id = str(query.message.chat_id)

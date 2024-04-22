@@ -297,7 +297,6 @@ def button(update, context):
             hints_menu(update, context)
         elif query.data == 'mmenu':
             user_input(0, "none")
-            write_db_cell("pc_health_check", 0, "check_status")
             write_db_cell("updater_status", 0)
             keyboard = [[InlineKeyboardButton("🖥 Компьютер", callback_data='computer')],
                         [InlineKeyboardButton(

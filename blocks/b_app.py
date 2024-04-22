@@ -2,7 +2,8 @@ import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from blocks import s_path
-from blocks.s_scripts_list import sdb_path
+from blocks.s_scripts_list import (sdb_path, thread_script_eft_1,
+                                   thread_script_eft_2, thread_script_eft_3)
 from blocks.u_common_func import user_input
 from blocks.u_handle_db import read_db_cell
 
@@ -97,6 +98,12 @@ def sdai_links_menu(update, context):
 
 
 def scripts_menu(update, context):
+    try:
+        thread_script_eft_1.start()
+        thread_script_eft_2.start()
+        thread_script_eft_3.start()
+    except:
+        pass
     query = update.callback_query
     user_id = str(query.message.chat_id)
     keyboard = [[InlineKeyboardButton("🤕 Escape From Tarkov", callback_data='scr_eft')],

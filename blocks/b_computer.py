@@ -2,30 +2,28 @@ import datetime
 import json
 import os
 import re
+import shutil
 import socket
+import string
 import subprocess
 import threading
 import time
-import shutil
-import string
+from ctypes import POINTER, cast
 
+import comtypes
 import keyboard
 import mss
 import psutil
 import pyautogui
+import pycaw.pycaw as pycaw
 import pygetwindow as gw
 import pyperclip
 import screeninfo
 import telegram
-
-import pycaw.pycaw as pycaw # ! новая библиотека pycaw
-import win32gui # ! новая библиотека pywin32
-from ctypes import cast, POINTER
-import comtypes
-from comtypes import CLSCTX_ALL # ! новая библиотека comtypes
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-
+import win32gui
+from comtypes import CLSCTX_ALL
 from dotenv import load_dotenv
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
 
 import blocks.u_common_func
@@ -155,16 +153,7 @@ def time_to_upd(upd_time, cur_time):
 def explorer_fix():
     os.system(f"{KILL} explorer.exe")
     os.system("start explorer.exe")
-
-
-def check_health():
-    while True:
-        if read_db_cell("pc_health_check", "check_status") == 1:
-            cpu_percent = psutil.cpu_percent(interval=3)
-            write_db_cell("pc_health_check", cpu_percent, "cpu")
-            memory = psutil.virtual_memory()
-            write_db_cell("pc_health_check", memory.percent, "ram")
-            
+       
 
 def check_memory(disk_symbol=None):
     if disk_symbol is None:
@@ -190,7 +179,6 @@ def check_memory(disk_symbol=None):
     
 
 def memory_stats(clear_flag=False):
-
     temp_files_paths = {
         'appdata_temp_path': os.path.expanduser('~') + "\\AppData\\Local\\Temp",
         'win_temp_path': os.path.join("C:\Windows\Temp"),
@@ -221,9 +209,9 @@ def memory_stats(clear_flag=False):
                     except:
                         pass
 
+
 def computer_menu(update, context):
     user_input(0, "none")
-    write_db_cell("pc_health_check", 0, "check_status")
     write_db_cell("updater_status", 0)
     query = update.callback_query
     user_id = str(query.message.chat_id)
@@ -440,9 +428,8 @@ def clipboard_menu(update, context):
 def health_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    write_db_cell("pc_health_check", 1, "check_status")
-    cpu = read_db_cell("pc_health_check", "cpu")
-    ram = read_db_cell("pc_health_check", "ram")
+    cpu = psutil.cpu_percent()
+    ram = psutil.virtual_memory().percent
     disk_c = check_memory("C")
     
     cpu_str = f"*CPU*: `{cpu}`%".ljust(17, ' ')
@@ -467,7 +454,6 @@ def health_menu(update, context):
 def memory_menu(update, context):
     query = update.callback_query
     user_id = str(query.message.chat_id)
-    write_db_cell("pc_health_check", 0, "check_status")
     write_db_cell("updater_status", 0)
     mes = f'''{check_memory()}'''
     mes = mes.replace(".", r"\.")
@@ -519,4 +505,4 @@ def additional_pc_menu(update, context):
 
 
 thread_speed_test = threading.Thread(target=speed_test)
-thread_check_health = threading.Thread(target=check_health)
+

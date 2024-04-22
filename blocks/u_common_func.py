@@ -97,8 +97,10 @@ def menu_updater(name, update, context):
             name(update, context)
             time.sleep(1)
         else:
-            menu_updater.join()
-            # print(f"Обновление{mod_fix()}завершено")
+            try:
+                menu_updater.join()
+            except:
+                pass
             break
 
 def thread_make(thread_name, name_func, name_func2, update, context):

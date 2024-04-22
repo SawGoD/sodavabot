@@ -1,6 +1,6 @@
-# SODA VA BOT v9.26b
+# SODA VA BOT v10.22b
 <!-- 2023      Март, апрель, май, июнь, июль, август, сентябрь, октябрь ( ноябрь, декабрь ) -->
-<!-- 2024      ( Январь, февраль ), март -->
+<!-- 2024      ( Январь, февраль ), март, апрель -->
 ![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Montserrat&weight=500&size=25&duration=2800&pause=800&color=DC143C&vCenter=true&width=500&height=30&lines=S+U+T+I+V+I+S+M+Project.;.)
 
 [![Telegram](https://img.shields.io/badge/SawGoD-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/SawGoD)
