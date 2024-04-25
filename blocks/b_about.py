@@ -14,8 +14,13 @@ def get_changes(repo, c_from=0, c_to=5):
     if os.getenv('API_TOKEN_GIT') != 'unavailable':
         response = requests.get(
             url, headers={"Authorization": f"token {os.getenv('API_TOKEN_GIT')}"})
+        print(response.status_code, "1")
+        if response.status_code != 200:
+            response = requests.get(url)
+            print(response.status_code, "2")
     else:
-        response = requests.get(url)
+        resource = requests.get(url)
+        print(resource.status_code, "3")
     output = "Последние изменения:\n\n"
     if response.status_code == 200:
         commits = response.json()
@@ -33,7 +38,6 @@ def get_changes(repo, c_from=0, c_to=5):
                 commit_author = commit['commit']['author']['name']
             else:
                 commit_author = commit['author']['login']
-                # commit_author = "2121"
             commit_url = commit['html_url']
 
             output += fr'''

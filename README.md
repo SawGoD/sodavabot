@@ -1,4 +1,4 @@
-# SODA VA BOT v10.22b
+# SODA VA BOT v10.25b
 <!-- 2023      Март, апрель, май, июнь, июль, август, сентябрь, октябрь ( ноябрь, декабрь ) -->
 <!-- 2024      ( Январь, февраль ), март, апрель -->
 ![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Montserrat&weight=500&size=25&duration=2800&pause=800&color=DC143C&vCenter=true&width=500&height=30&lines=S+U+T+I+V+I+S+M+Project.;.)
