@@ -1,0 +1,13 @@
+.idea
+.vscode
+__pycache__
+
+test
+
+data/test*
+logs/error*
+src/dev*
+
+resource/screenshots/*
+
+.env
