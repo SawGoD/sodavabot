@@ -1,15 +1,23 @@
 import json
+import os
 import random
+import sys
 from typing import Any
 
 
 def mod_fix():
     # Генерирует случайную строку для исправления ошибки
     result = ""
-    for i in range(random.randint(5, 5)):
+    for i in range(random.randint(4, 4)):
         result += random.choice("ㅤㅤㅤㅤㅤ     ")
         result += random.choice("     ㅤㅤㅤㅤㅤ")
     return result
+
+
+def restart_bot():
+    # Перезапускает бота
+    python = sys.executable
+    os.execv(python, [python, rf".\src\main.py"])
 
 
 def read_json(*cells: str, filename: str = "titles_dict") -> Any:
