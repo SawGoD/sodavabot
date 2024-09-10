@@ -5,6 +5,7 @@ __pycache__
 test
 
 data/test*
+data/fleeting_data*
 logs/error*
 src/dev*
 
