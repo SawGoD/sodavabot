@@ -6,6 +6,7 @@ test
 
 data/test*
 data/fleeting_data*
+data/titles_dict*
 logs/error*
 src/dev*
 
