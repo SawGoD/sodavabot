@@ -1,0 +1,23 @@
+{
+  "goto_main_layer": {
+    "upd_callback": "main_menu",
+    "goto_menu_callback": "main_menu"
+  },
+  "goto_second_layer": {
+    "apps_callback": "apps_menu",
+    "computer_callback": "computer_menu",
+    "settings_callback": "settings_menu"
+  },
+  "goto_computer_layer": {
+    "multimedia_callback": "multimedia_menu",
+    "screen_callback": "screen_menu",
+    "clipboard_callback": "clipboard_menu",
+    "state_callback": "state_menu",
+    "power_callback": "power_menu"
+  },
+  "goto_custom_behavior": {
+    "volstate_callback": "multimedia_menu(update, context, action=True, act_type='volume')",
+    "vol_summary_callback": "multimedia_menu(update, context, action=True, act_type='vol_summary')",
+    "out_summary_callback": "multimedia_menu(update, context, action=True, act_type='output_summary')"
+  }
+}
